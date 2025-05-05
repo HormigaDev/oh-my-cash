@@ -1,10 +1,10 @@
-const { Controller } = require('../class/Controller');
-const { BadRequestError } = require('../class/errors');
+const { Controller } = require('../utils/Controller');
+const { BadRequestError } = require('../utils/errors');
 
 /**
  * @typedef {import('express').Request & { user: {id: number } }} Request
  * @typedef {import('express').Response} Response
- * @typedef {import('../class/QueryManager')} QueryManager
+ * @typedef {import('../utils/QueryManager')} QueryManager
  * @typedef {import('../services/transactions.service')} TransactionsService
  */
 

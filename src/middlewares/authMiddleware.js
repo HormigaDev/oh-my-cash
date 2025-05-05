@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const { HttpError, UnauthorizedError, ForbiddenError } = require('../class/errors');
-const qm = require('../class/QueryManager');
+const { HttpError, UnauthorizedError, ForbiddenError } = require('../utils/errors');
+const qm = require('../utils/QueryManager');
 const UsersService = require('../services/users.service');
 
 const publicRoutes = [];

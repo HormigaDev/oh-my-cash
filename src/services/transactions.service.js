@@ -1,11 +1,11 @@
-const { HttpError, NotFoundError, ForbiddenError, BadRequestError } = require('../class/errors');
-const Service = require('../class/Service');
+const { HttpError, NotFoundError, ForbiddenError, BadRequestError } = require('../utils/errors');
+const Service = require('../utils/Service');
 const transactionFiltersSchema = require('../schemas/transaction-filters.schema');
 const transactionSchema = require('../schemas/transaction.schema');
 const CategoriesService = require('./categories.service');
 
 /**
- * @typedef {import('../class/QueryManager')} QueryManager
+ * @typedef {import('../utils/QueryManager')} QueryManager
  */
 
 /**

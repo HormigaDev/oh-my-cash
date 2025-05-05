@@ -1,4 +1,4 @@
-const Service = require('../class/Service');
+const Service = require('../utils/Service');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const userSchema = require('../schemas/user.schema');
@@ -8,12 +8,12 @@ const {
     HttpError,
     UnauthorizedError,
     BadRequestError,
-} = require('../class/errors');
-const { Times } = require('../class/Times');
+} = require('../utils/errors');
+const { Times } = require('../utils/Times');
 const salt = +(process.env.SALT_ROUNDS || 10);
 
 /**
- * @typedef {import('../class/QueryManager')} QueryManager
+ * @typedef {import('../utils/QueryManager')} QueryManager
  */
 
 class UsersService extends Service {

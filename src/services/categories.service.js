@@ -1,9 +1,9 @@
-const { NotFoundError, HttpError, ForbiddenError, ConflictError } = require('../class/errors');
-const Service = require('../class/Service');
+const { NotFoundError, HttpError, ForbiddenError, ConflictError } = require('../utils/errors');
+const Service = require('../utils/Service');
 const categorySchema = require('../schemas/category.schema');
 
 /**
- * @typedef {import('../class/QueryManager')} QueryManager
+ * @typedef {import('../utils/QueryManager')} QueryManager
  */
 
 class CategoriesService extends Service {
