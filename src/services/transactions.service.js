@@ -243,6 +243,7 @@ class TransactionsService extends Service {
                 $userId: transactionSchema.$userId,
                 $transactionId: {
                     type: 'number',
+                    convert: true,
                     rules: [
                         {
                             validation: (value) => parseInt(value) > 0,
@@ -254,7 +255,7 @@ class TransactionsService extends Service {
         );
 
         try {
-            const category = this.findById(transactionId);
+            const category = await this.findById(transactionId);
             if (category.userId !== userId) {
                 throw new ForbiddenError('Usuário não autorizado para alterar este registro.');
             }

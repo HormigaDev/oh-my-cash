@@ -8,7 +8,7 @@ select
     id,
     user_id as "userId",
     name
-from categories where id = $1 and deleted is false;
+from categories where id = $1;
 
 -- find-by-name
 select
@@ -18,7 +18,7 @@ select
 from categories where user_id = $1 and name = $2;
 
 -- find
-select id, name from categories where user_id = $1 and deleted is false order by id asc;
+select id, name from categories where user_id = $1 order by id asc;
 
 -- update
 update categories

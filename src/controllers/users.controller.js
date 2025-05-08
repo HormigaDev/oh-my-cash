@@ -1,16 +1,16 @@
-const { Controller } = require('../class/Controller');
-const { BadRequestError } = require('../class/errors');
+const { Controller } = require('../utils/Controller');
+const { BadRequestError } = require('../utils/errors');
 
 /**
  * @typedef {import('express').Request & { user: { id: number } }} Request
  * @typedef {import('express').Response} Response
  * @typedef {import('../class/QueryManager')} QueryManager
- * @typedef {import('../services/users.service')} UsersService
+ * @typedef {import('../services/users.service')} Service
  */
 
 class UsersController extends Controller {
     /**
-     * @param {UsersService} service
+     * @param {Service} service
      * @param {QueryManager} queryManager
      */
     constructor(service, queryManager) {

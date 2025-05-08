@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const queryManager = require('./src/class/QueryManager');
+const queryManager = require('./src/utils/QueryManager');
 
 /**
  * @param {import('express').Express} app
