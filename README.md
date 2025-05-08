@@ -37,7 +37,10 @@ npm install
 # Rode o script SQL para criar as tabelas ubicado em:
 # src/databse/init.sql
 
-# Inicie o servidor
+# Inciar o servidor em producção
+npm run start
+
+# Iniciar o servidor em desenvolvimento
 npm run dev
 ```
 
