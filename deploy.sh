@@ -22,7 +22,6 @@ RELEASES_DIR="${WEB_ROOT}/releases"
 CURRENT_LINK="${WEB_ROOT}/current"
 
 NGINX_SOURCE="${ROOT_DIR}/nginx/omc.conf"
-NGINX_RENDERED="$(mktemp)"
 NGINX_TARGET="/etc/nginx/sites-available/omc.conf"
 NGINX_ENABLED="/etc/nginx/sites-enabled/omc.conf"
 
@@ -30,6 +29,8 @@ RELEASE_ID="$(date -u +%Y%m%d%H%M%S)"
 FRONTEND_RELEASE="${RELEASES_DIR}/${RELEASE_ID}"
 
 KEEP_RELEASES=3
+
+NGINX_RENDERED=""
 
 log() {
     printf '\n\033[1;36m==> %s\033[0m\n' "$1"
@@ -41,7 +42,9 @@ fail() {
 }
 
 cleanup() {
-    rm -f "${NGINX_RENDERED}"
+    if [[ -n "${NGINX_RENDERED}" && -f "${NGINX_RENDERED}" ]]; then
+        rm -f "${NGINX_RENDERED}"
+    fi
 }
 
 trap cleanup EXIT
@@ -60,12 +63,6 @@ command -v rsync >/dev/null \
 
 command -v nginx >/dev/null \
     || fail "nginx is not installed"
-
-[[ -f "${NGINX_SOURCE}" ]] \
-    || fail "nginx configuration not found at ${NGINX_SOURCE}"
-
-grep -qF '$URL_DEL_BACKEND' "${NGINX_SOURCE}" \
-    || fail 'placeholder $URL_DEL_BACKEND not found in nginx/omc.conf'
 
 cd "${ROOT_DIR}"
 
@@ -191,27 +188,41 @@ sudo ln \
     "${FRONTEND_RELEASE}" \
     "${CURRENT_LINK}"
 
-log "Rendering Nginx configuration for ${DOMAIN}"
+if [[ -e "${NGINX_TARGET}" ]]; then
+    log "Nginx configuration already exists, skipping installation"
+else
+    [[ -f "${NGINX_SOURCE}" ]] \
+        || fail "nginx configuration not found at ${NGINX_SOURCE}"
 
-sed \
-    "s|\$URL_DEL_BACKEND|${DOMAIN}|g" \
-    "${NGINX_SOURCE}" \
-    > "${NGINX_RENDERED}"
+    grep -qF '$URL_DEL_BACKEND' "${NGINX_SOURCE}" \
+        || fail 'placeholder $URL_DEL_BACKEND not found in nginx/omc.conf'
 
-if grep -qF '$URL_DEL_BACKEND' "${NGINX_RENDERED}"; then
-    fail 'not all $URL_DEL_BACKEND placeholders were replaced'
+    NGINX_RENDERED="$(mktemp)"
+
+    log "Rendering Nginx configuration for ${DOMAIN}"
+
+    sed \
+        "s|\$URL_DEL_BACKEND|${DOMAIN}|g" \
+        "${NGINX_SOURCE}" \
+        > "${NGINX_RENDERED}"
+
+    if grep -qF '$URL_DEL_BACKEND' "${NGINX_RENDERED}"; then
+        fail 'not all $URL_DEL_BACKEND placeholders were replaced'
+    fi
+
+    log "Installing Nginx configuration"
+
+    sudo install \
+        -o root \
+        -g root \
+        -m 0644 \
+        "${NGINX_RENDERED}" \
+        "${NGINX_TARGET}"
 fi
 
-log "Installing Nginx configuration"
-
-sudo install \
-    -o root \
-    -g root \
-    -m 0644 \
-    "${NGINX_RENDERED}" \
-    "${NGINX_TARGET}"
-
 if [[ ! -e "${NGINX_ENABLED}" ]]; then
+    log "Enabling Nginx configuration"
+
     sudo ln \
         -s \
         "${NGINX_TARGET}" \
