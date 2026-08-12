@@ -204,20 +204,14 @@
               >
                 <template #prepend><q-icon name="event_repeat" /></template>
               </q-input>
-              <q-input
+              <AppDateField
                 v-model="startsOn"
-                outlined
-                type="date"
-                stack-label
                 :label="t('recurring.form.startsOn')"
                 :rules="startsOnRules"
                 :disable="saving"
               />
-              <q-input
+              <AppDateField
                 v-model="endsOn"
-                outlined
-                type="date"
-                stack-label
                 :label="t('recurring.form.endsOn')"
                 :rules="endsOnRules"
                 :disable="saving"
@@ -270,6 +264,7 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar, type QForm } from "quasar";
 
+import AppDateField from "@/components/AppDateField.vue";
 import { useAuthStore } from "@/features/auth/authStore";
 import type { Category } from "@/features/categories/types";
 
@@ -307,7 +302,7 @@ const estimatedAmount = ref("");
 const minAmount = ref("");
 const maxAmount = ref("");
 const dayOfMonth = ref("1");
-const startsOn = ref(todayDateInput());
+const startsOn = ref<string | null>(todayDateInput());
 const endsOn = ref<string | null>("");
 const notes = ref("");
 const $q = useQuasar();
@@ -386,8 +381,9 @@ const dayRules = [
   }
 ];
 const startsOnRules = [
-  (value: string) =>
-    isValidDateInput(value) || t("recurring.form.dateRequired"),
+  (value: string | null) =>
+    (value !== null && isValidDateInput(value)) ||
+    t("recurring.form.dateRequired"),
   () => validDateRange()
 ];
 const endsOnRules = [
@@ -430,7 +426,7 @@ function withinVariableRange(value: string) {
 function validDateRange() {
   return endsOn.value === null ||
     endsOn.value.length === 0 ||
-    startsOn.value.length === 0 ||
+    startsOn.value === null ||
     endsOn.value >= startsOn.value
     ? true
     : t("recurring.form.dateRangeInvalid");
@@ -478,7 +474,7 @@ function normalizedMoney(value: string) {
 }
 
 function submit() {
-  if (categoryId.value === null) {
+  if (categoryId.value === null || startsOn.value === null) {
     return;
   }
 

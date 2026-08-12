@@ -1,6 +1,7 @@
 import { useI18n } from "vue-i18n";
 
 import { useAuthStore } from "@/features/auth/authStore";
+import { resolveAppLocale } from "@/i18n/locale";
 
 const defaultCurrency = "BRL";
 const defaultLocale = "es";
@@ -16,7 +17,7 @@ export function useFinancialFormat() {
     }
 
     const currency = auth.user?.currency ?? defaultCurrency;
-    const locale = auth.user?.locale ?? defaultLocale;
+    const locale = resolveAppLocale(auth.user?.locale);
 
     try {
       return new Intl.NumberFormat(locale, {
@@ -43,7 +44,7 @@ export function useFinancialFormat() {
     }
 
     try {
-      return new Intl.DateTimeFormat(auth.user?.locale ?? defaultLocale, {
+      return new Intl.DateTimeFormat(resolveAppLocale(auth.user?.locale), {
         dateStyle: "medium",
         timeZone: auth.user?.timezone ?? defaultTimezone
       }).format(date);
@@ -71,7 +72,7 @@ export function useFinancialFormat() {
     );
 
     try {
-      return new Intl.DateTimeFormat(auth.user?.locale ?? defaultLocale, {
+      return new Intl.DateTimeFormat(resolveAppLocale(auth.user?.locale), {
         dateStyle: "medium",
         timeZone: "UTC"
       }).format(date);
@@ -83,5 +84,33 @@ export function useFinancialFormat() {
     }
   }
 
-  return { formatMoney, formatDate, formatDateOnly };
+  function formatLocalDateTime(value: string) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/u.exec(value);
+
+    if (match === null) {
+      return t("common.notAvailable");
+    }
+
+    const date = new Date(
+      Number(match[1]),
+      Number(match[2]) - 1,
+      Number(match[3]),
+      Number(match[4]),
+      Number(match[5])
+    );
+
+    try {
+      return new Intl.DateTimeFormat(resolveAppLocale(auth.user?.locale), {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }).format(date);
+    } catch {
+      return new Intl.DateTimeFormat(defaultLocale, {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }).format(date);
+    }
+  }
+
+  return { formatMoney, formatDate, formatDateOnly, formatLocalDateTime };
 }

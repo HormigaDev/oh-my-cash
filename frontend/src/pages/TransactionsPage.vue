@@ -17,6 +17,58 @@
         />
       </AppPageHeader>
 
+      <section
+        class="transactions-period"
+        :aria-label="t('transactions.month.label')"
+      >
+        <q-btn
+          flat
+          round
+          icon="chevron_left"
+          :disable="loadStatus === 'loading'"
+          :aria-label="t('transactions.month.previous')"
+          @click="changeMonth(-1)"
+        />
+        <div class="transactions-period__value">
+          <span>{{ t("transactions.month.eyebrow") }}</span>
+          <strong>{{ selectedMonthLabel }}</strong>
+        </div>
+        <q-btn
+          flat
+          round
+          icon="chevron_right"
+          :disable="loadStatus === 'loading'"
+          :aria-label="t('transactions.month.next')"
+          @click="changeMonth(1)"
+        />
+        <AppMonthField
+          v-model="selectedMonth"
+          class="transactions-period__picker"
+          :label="t('transactions.month.choose')"
+          :disable="loadStatus === 'loading'"
+          @update:model-value="loadTransactions"
+        />
+        <q-btn
+          v-if="selectedMonth !== thisMonth"
+          flat
+          no-caps
+          color="primary"
+          :disable="loadStatus === 'loading'"
+          :label="t('transactions.month.current')"
+          @click="goToCurrentMonth"
+        />
+      </section>
+
+      <q-banner
+        v-if="loadStatus === 'ready'"
+        dense
+        rounded
+        class="transactions-materialization"
+      >
+        <template #avatar><q-icon name="info" size="md" /></template>
+        {{ t("transactions.materialization.notice") }}
+      </q-banner>
+
       <div v-if="loadStatus === 'ready' && transactions.length > 0">
         <section
           class="transactions-summary"
@@ -110,23 +162,27 @@
       </section>
 
       <section v-else-if="transactions.length === 0" class="transactions-state">
-        <div class="transactions-state__icon" aria-hidden="true"
-          ><q-icon name="receipt_long" size="1.8rem"
-        /></div>
-        <h2>{{
-          t(
-            categories.length === 0
-              ? "transactions.empty.noCategoriesTitle"
-              : "transactions.empty.title"
-          )
-        }}</h2>
-        <p>{{
-          t(
-            categories.length === 0
-              ? "transactions.empty.noCategoriesDescription"
-              : "transactions.empty.description"
-          )
-        }}</p>
+        <div class="transactions-state__icon" aria-hidden="true">
+          <q-icon name="receipt_long" size="1.8rem" />
+        </div>
+        <h2>
+          {{
+            t(
+              categories.length === 0
+                ? "transactions.empty.noCategoriesTitle"
+                : "transactions.empty.title",
+            )
+          }}
+        </h2>
+        <p>
+          {{
+            t(
+              categories.length === 0
+                ? "transactions.empty.noCategoriesDescription"
+                : "transactions.empty.description",
+            )
+          }}
+        </p>
         <q-btn
           unelevated
           no-caps
@@ -137,7 +193,7 @@
             t(
               categories.length === 0
                 ? 'transactions.actions.manageCategories'
-                : 'transactions.actions.createFirst'
+                : 'transactions.actions.createFirst',
             )
           "
           @click="categories.length > 0 && openCreateDialog()"
@@ -148,9 +204,9 @@
         v-else-if="filteredTransactions.length === 0"
         class="transactions-state transactions-state--compact"
       >
-        <div class="transactions-state__icon" aria-hidden="true"
-          ><q-icon name="search_off" size="1.8rem"
-        /></div>
+        <div class="transactions-state__icon" aria-hidden="true">
+          <q-icon name="search_off" size="1.8rem" />
+        </div>
         <h2>{{ t("transactions.noResults.title") }}</h2>
         <p>{{ t("transactions.noResults.description") }}</p>
         <q-btn
@@ -179,6 +235,7 @@
     <TransactionFormDialog
       v-model="formOpen"
       :transaction="editingTransaction"
+      :initial-occurred-at="initialOccurredAt"
       :categories="categories"
       :saving="saving"
       :error="formError"
@@ -210,11 +267,13 @@
           </div>
           <div>
             <h2>{{ t(`transactions.${transitionAction}.title`) }}</h2>
-            <p>{{
-              t(`transactions.${transitionAction}.description`, {
-                name: transitioningTransaction?.description ?? ""
-              })
-            }}</p>
+            <p>
+              {{
+                t(`transactions.${transitionAction}.description`, {
+                  name: transitioningTransaction?.description ?? "",
+                })
+              }}
+            </p>
           </div>
         </q-card-section>
         <q-card-actions class="transition-dialog__actions">
@@ -247,6 +306,8 @@ import { useRoute, useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 
 import AppPageHeader from "@/components/AppPageHeader.vue";
+import AppMonthField from "@/components/AppMonthField.vue";
+import { useAppLocale } from "@/composables/useAppLocale";
 import { useAuthStore } from "@/features/auth/authStore";
 import { listCategories } from "@/features/categories/api";
 import type { Category } from "@/features/categories/types";
@@ -259,14 +320,21 @@ import {
   listTransactions,
   payTransaction,
   skipTransaction,
-  updateTransaction
+  updateTransaction,
 } from "@/features/transactions/api";
 import type {
   ManualTransactionInput,
   PayTransactionInput,
   Transaction,
-  TransactionStatus
+  TransactionStatus,
 } from "@/features/transactions/types";
+import {
+  currentMonth,
+  dateTimeInputForMonth,
+  formatMonth,
+  isValidMonth,
+  shiftMonth,
+} from "@/features/transactions/month";
 import { isApiError } from "@/lib/api/errors";
 
 type LoadStatus = "loading" | "ready" | "error";
@@ -278,10 +346,14 @@ const route = useRoute();
 const router = useRouter();
 const $q = useQuasar();
 const { t } = useI18n();
+const { locale } = useAppLocale();
 
 const transactions = ref<Transaction[]>([]);
 const categories = ref<Category[]>([]);
+const thisMonth = currentMonth(auth.user?.timezone ?? "America/Sao_Paulo");
+const selectedMonth = ref(thisMonth);
 const loadStatus = ref<LoadStatus>("loading");
+let loadSequence = 0;
 const search = ref("");
 const statusFilter = ref<StatusFilter>("all");
 const formOpen = ref(false);
@@ -303,19 +375,26 @@ const statusOptions = computed(() => [
   { label: t("transactions.status.pending"), value: "pending" },
   { label: t("transactions.status.paid"), value: "paid" },
   { label: t("transactions.status.skipped"), value: "skipped" },
-  { label: t("transactions.status.cancelled"), value: "cancelled" }
+  { label: t("transactions.status.cancelled"), value: "cancelled" },
 ]);
+const selectedMonthLabel = computed(() =>
+  formatMonth(selectedMonth.value, locale.value),
+);
+const initialOccurredAt = computed(() =>
+  dateTimeInputForMonth(selectedMonth.value, thisMonth),
+);
 const statusCounts = computed(() => ({
   pending: transactions.value.filter(
-    transaction => transaction.status === "pending"
+    (transaction) => transaction.status === "pending",
   ).length,
-  paid: transactions.value.filter(transaction => transaction.status === "paid")
-    .length
+  paid: transactions.value.filter(
+    (transaction) => transaction.status === "paid",
+  ).length,
 }));
 const filteredTransactions = computed(() => {
   const query = search.value.trim().toLocaleLowerCase("es");
 
-  return transactions.value.filter(transaction => {
+  return transactions.value.filter((transaction) => {
     const category = categoryById(transaction.categoryId);
     return (
       (statusFilter.value === "all" ||
@@ -329,7 +408,7 @@ const filteredTransactions = computed(() => {
 });
 
 function categoryById(id: string) {
-  return categories.value.find(category => category.id === id) ?? null;
+  return categories.value.find((category) => category.id === id) ?? null;
 }
 
 async function redirectExpiredSession(error: unknown) {
@@ -356,18 +435,40 @@ function errorMessage(error: unknown) {
 }
 
 async function loadData() {
-  loadStatus.value = "loading";
   try {
-    const [loadedTransactions, loadedCategories] = await Promise.all([
-      listTransactions(),
-      listCategories()
-    ]);
-    transactions.value = loadedTransactions;
-    categories.value = loadedCategories;
-    loadStatus.value = "ready";
+    categories.value = await listCategories();
+    await loadTransactions();
   } catch (error) {
     if (!(await redirectExpiredSession(error))) loadStatus.value = "error";
   }
+}
+
+async function loadTransactions() {
+  if (!isValidMonth(selectedMonth.value)) return;
+
+  const sequence = ++loadSequence;
+  loadStatus.value = "loading";
+
+  try {
+    const loadedTransactions = await listTransactions(selectedMonth.value);
+    if (sequence !== loadSequence) return;
+
+    transactions.value = loadedTransactions;
+    loadStatus.value = "ready";
+  } catch (error) {
+    if (sequence !== loadSequence) return;
+    if (!(await redirectExpiredSession(error))) loadStatus.value = "error";
+  }
+}
+
+function changeMonth(offset: number) {
+  selectedMonth.value = shiftMonth(selectedMonth.value, offset);
+  void loadTransactions();
+}
+
+function goToCurrentMonth() {
+  selectedMonth.value = thisMonth;
+  void loadTransactions();
 }
 
 function openCreateDialog() {
@@ -395,12 +496,12 @@ function operationIdFor(input: ManualTransactionInput) {
 
 function replaceTransaction(saved: Transaction) {
   const index = transactions.value.findIndex(
-    transaction => transaction.id === saved.id
+    (transaction) => transaction.id === saved.id,
   );
   if (index === -1) transactions.value = [saved, ...transactions.value];
   else
-    transactions.value = transactions.value.map(transaction =>
-      transaction.id === saved.id ? saved : transaction
+    transactions.value = transactions.value.map((transaction) =>
+      transaction.id === saved.id ? saved : transaction,
     );
 }
 
@@ -411,13 +512,15 @@ async function saveTransaction(input: ManualTransactionInput) {
 
   try {
     const editing = editingTransaction.value;
-    const saved = editing
-      ? await updateTransaction(editing.id, input)
-      : await createTransaction({
-          ...input,
-          clientOperationId: operationIdFor(input)
-        });
-    replaceTransaction(saved);
+    if (editing) {
+      await updateTransaction(editing.id, input);
+    } else {
+      await createTransaction({
+        ...input,
+        clientOperationId: operationIdFor(input),
+      });
+    }
+    await loadTransactions();
     formOpen.value = false;
     createAttempt.value = null;
     $q.notify({
@@ -425,8 +528,8 @@ async function saveTransaction(input: ManualTransactionInput) {
       message: t(
         editing
           ? "transactions.feedback.updated"
-          : "transactions.feedback.created"
-      )
+          : "transactions.feedback.created",
+      ),
     });
   } catch (error) {
     if (!(await redirectExpiredSession(error)))
@@ -461,7 +564,7 @@ async function confirmPayment(input: PayTransactionInput) {
 
 function openTransitionDialog(
   action: TransitionAction,
-  transaction: Transaction
+  transaction: Transaction,
 ) {
   transitionAction.value = action;
   transitioningTransaction.value = transaction;
@@ -481,7 +584,7 @@ async function confirmTransition() {
     transitionOpen.value = false;
     $q.notify({
       type: "positive",
-      message: t(`transactions.feedback.${transitionAction.value}`)
+      message: t(`transactions.feedback.${transitionAction.value}`),
     });
   } catch (error) {
     if (!(await redirectExpiredSession(error))) {
@@ -522,11 +625,51 @@ onMounted(() => void loadData());
   font-weight: 680;
 }
 
+.transactions-period {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 2rem;
+  padding: 0.65rem;
+  border: 0.0625rem solid var(--omc-color-border);
+  border-radius: var(--omc-radius-lg);
+  background: var(--omc-color-surface);
+}
+
+.transactions-period__value {
+  display: grid;
+  min-width: 9rem;
+  flex: 1 1 9rem;
+}
+
+.transactions-period__value span {
+  color: var(--omc-color-text-muted);
+  font-size: 0.7rem;
+}
+
+.transactions-period__value strong {
+  color: var(--omc-color-text);
+  font-size: 1rem;
+}
+
+.transactions-period__picker {
+  width: 10.5rem;
+}
+
+.transactions-materialization {
+  margin-top: 0.75rem;
+  background: var(--omc-color-info-soft);
+  color: var(--omc-color-info);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
 .transactions-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.65rem;
-  margin-top: 2rem;
+  margin-top: 0.75rem;
 }
 
 .transactions-summary > div {
@@ -716,6 +859,10 @@ onMounted(() => void loadData());
 
   .transactions-toolbar {
     grid-template-columns: minmax(15rem, 1fr) auto;
+  }
+
+  .transactions-period__value {
+    flex: 0 0 12rem;
   }
 
   .transactions-grid {

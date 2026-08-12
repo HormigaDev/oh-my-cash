@@ -1,5 +1,6 @@
 import { apiRequest } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/errors";
+import { resolveAppLocale } from "@/i18n/locale";
 
 import type { AuthUser, LoginCredentials, SessionResponse } from "./types";
 
@@ -30,7 +31,7 @@ function parseUser(value: unknown): AuthUser {
     displayName: value.display_name,
     currency: value.currency,
     timezone: value.timezone,
-    locale: value.locale
+    locale: resolveAppLocale(value.locale)
   };
 }
 

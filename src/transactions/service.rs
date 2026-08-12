@@ -458,12 +458,46 @@ fn month_filter(auth: &AuthUser, period: &MonthPeriod) -> Condition {
             r#"
                     to_char(
                         "transactions"."occurred_at"
-                        AT TIME ZONE ?,
+                        AT TIME ZONE $1,
                         'YYYY-MM'
-                    ) = ?
+                    ) = $2
                     "#,
             [auth.timezone.clone(), period.key().to_owned()],
         ));
 
     Condition::any().add(recurring).add(point_in_time)
+}
+
+#[cfg(test)]
+mod tests {
+    use sea_orm::{DbBackend, EntityTrait, QueryFilter, QueryTrait};
+    use uuid::Uuid;
+
+    use super::*;
+
+    #[test]
+    fn month_filter_builds_valid_postgres_placeholders() {
+        let auth = AuthUser {
+            id: Uuid::nil(),
+            email: "user@example.com".to_owned(),
+            display_name: None,
+            currency: "BRL".to_owned(),
+            timezone: "America/Sao_Paulo".to_owned(),
+            locale: "es".to_owned(),
+        };
+        let period = MonthPeriod::parse("2026-08").unwrap();
+
+        let statement = transactions::Entity::find()
+            .filter(transactions::Column::UserId.eq(auth.id))
+            .filter(month_filter(&auth, &period))
+            .build(DbBackend::Postgres);
+
+        assert!(!statement.sql.contains('?'), "{}", statement.sql);
+        assert!(
+            statement.sql.contains("AT TIME ZONE $3"),
+            "{}",
+            statement.sql
+        );
+        assert!(statement.sql.contains(") = $4"), "{}", statement.sql);
+    }
 }

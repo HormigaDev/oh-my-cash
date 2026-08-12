@@ -57,11 +57,8 @@
             <template #prepend><q-icon name="payments" /></template>
           </q-input>
 
-          <q-input
+          <AppDateTimeField
             v-model="occurredAt"
-            outlined
-            type="datetime-local"
-            stack-label
             :label="t('transactions.pay.occurredAt')"
             :rules="occurredAtRules"
             :disable="saving"
@@ -99,6 +96,7 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar, type QForm } from "quasar";
 
+import AppDateTimeField from "@/components/AppDateTimeField.vue";
 import { useAuthStore } from "@/features/auth/authStore";
 import {
   isValidPositiveMoney,

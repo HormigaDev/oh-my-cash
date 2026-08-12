@@ -124,11 +124,8 @@
             >
               <template #prepend><q-icon name="payments" /></template>
             </q-input>
-            <q-input
+            <AppDateTimeField
               v-model="occurredAt"
-              outlined
-              type="datetime-local"
-              stack-label
               :label="t('transactions.form.occurredAt')"
               :rules="occurredAtRules"
               :disable="saving"
@@ -183,6 +180,7 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar, type QForm } from "quasar";
 
+import AppDateTimeField from "@/components/AppDateTimeField.vue";
 import { useAuthStore } from "@/features/auth/authStore";
 import type { Category } from "@/features/categories/types";
 import {
@@ -202,6 +200,7 @@ import type { ManualTransactionInput, Transaction } from "./types";
 const props = defineProps<{
   modelValue: boolean;
   transaction: Transaction | null;
+  initialOccurredAt: string | null;
   categories: Category[];
   saving: boolean;
   error: string | null;
@@ -283,7 +282,7 @@ watch(
     amount.value = transaction?.actualAmount ?? "";
     occurredAt.value = transaction?.occurredAt
       ? toDateTimeInput(transaction.occurredAt)
-      : nowDateTimeInput();
+      : (props.initialOccurredAt ?? nowDateTimeInput());
     notes.value = transaction?.notes ?? "";
     form.value?.resetValidation();
   },

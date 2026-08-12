@@ -9,6 +9,7 @@ import type {
   TransactionStatus
 } from "./types";
 import type { TransactionDirection } from "@/features/recurring/types";
+import { isValidMonth } from "./month";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -97,8 +98,14 @@ function manualBody(input: ManualTransactionInput) {
   };
 }
 
-export async function listTransactions() {
-  const response = await apiRequest("/transactions");
+export async function listTransactions(month: string) {
+  if (!isValidMonth(month)) {
+    throw new ApiError(400, "BAD_REQUEST", "Invalid transaction month");
+  }
+
+  const response = await apiRequest(
+    `/transactions?${new URLSearchParams({ month }).toString()}`
+  );
 
   if (!Array.isArray(response)) {
     throw invalidResponse();
