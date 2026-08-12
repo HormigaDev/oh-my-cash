@@ -1,8 +1,7 @@
 use std::env;
 
-use sea_orm::{ActiveModelTrait, ColumnTrait, Database, EntityTrait, QueryFilter, Set};
+use sea_orm::{ColumnTrait, Database, EntityTrait, NotSet, QueryFilter, Set};
 use time::OffsetDateTime;
-use uuid::Uuid;
 
 use oh_my_cash::{auth::password, entities::users};
 
@@ -48,8 +47,8 @@ async fn main() -> anyhow::Result<()> {
 
     let now = OffsetDateTime::now_utc();
 
-    let user = users::ActiveModel {
-        id: Set(Uuid::new_v4()),
+    let user_model = users::ActiveModel {
+        id: NotSet,
 
         email: Set(email),
 
@@ -69,12 +68,14 @@ async fn main() -> anyhow::Result<()> {
 
         last_login_at: Set(None),
 
-        created_at: Set(now),
+        created_at: NotSet,
 
-        updated_at: Set(now),
-    }
-    .insert(&db)
-    .await?;
+        updated_at: NotSet,
+    };
+
+    let user = users::Entity::insert(user_model)
+        .exec_with_returning(&db)
+        .await?;
 
     println!("Created OMC user {} ({})", user.email, user.id,);
 

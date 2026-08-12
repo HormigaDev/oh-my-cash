@@ -1,11 +1,11 @@
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
+use sea_orm::{ActiveModelTrait, ActiveValue::NotSet, ColumnTrait, EntityTrait, QueryFilter, Set};
 use time::{Duration, OffsetDateTime};
-use uuid::Uuid;
 
 use crate::{
     app::AppState,
     auth::{
-        dto::{AuthUserResponse, LoginRequest},
+        AuthUser,
+        dto::LoginRequest,
         password,
         session::{generate_session_token, hash_session_token},
     },
@@ -14,7 +14,7 @@ use crate::{
 };
 
 pub struct LoginResult {
-    pub user: AuthUserResponse,
+    pub user: AuthUser,
     pub session_token: String,
 }
 
@@ -50,8 +50,8 @@ pub async fn login(
 
     let expires_at = now + Duration::days(state.config.session_ttl_days);
 
-    auth_sessions::ActiveModel {
-        id: Set(Uuid::new_v4()),
+    let auth_session_model = auth_sessions::ActiveModel {
+        id: NotSet,
 
         user_id: Set(user.id),
 
@@ -60,14 +60,16 @@ pub async fn login(
         user_agent: Set(user_agent),
         ip_address: Set(ip_address),
 
-        created_at: Set(now),
+        created_at: NotSet,
         last_seen_at: Set(Some(now)),
 
         expires_at: Set(expires_at),
         revoked_at: Set(None),
-    }
-    .insert(&state.db)
-    .await?;
+    };
+
+    let _ = auth_sessions::Entity::insert(auth_session_model)
+        .exec_with_returning(&state.db)
+        .await?;
 
     let mut active_user: users::ActiveModel = user.clone().into();
 
@@ -76,7 +78,7 @@ pub async fn login(
     active_user.update(&state.db).await?;
 
     Ok(LoginResult {
-        user: public_user(user),
+        user: user.into(),
         session_token: raw_token,
     })
 }
@@ -84,7 +86,7 @@ pub async fn login(
 pub async fn resolve_session(
     state: &AppState,
     raw_token: &str,
-) -> Result<Option<AuthUserResponse>, AppError> {
+) -> Result<Option<AuthUser>, AppError> {
     let token_hash = hash_session_token(raw_token);
 
     let now = OffsetDateTime::now_utc();
@@ -112,7 +114,7 @@ pub async fn resolve_session(
         return Ok(None);
     }
 
-    Ok(Some(public_user(user)))
+    Ok(Some(user.into()))
 }
 
 pub async fn revoke_session(state: &AppState, raw_token: &str) -> Result<(), AppError> {
@@ -148,19 +150,4 @@ fn normalize_email(email: &str) -> Result<String, AppError> {
     }
 
     Ok(email)
-}
-
-fn public_user(user: users::Model) -> AuthUserResponse {
-    AuthUserResponse {
-        id: user.id,
-        email: user.email,
-
-        display_name: user.display_name,
-
-        currency: user.currency,
-
-        timezone: user.timezone,
-
-        locale: user.locale,
-    }
 }

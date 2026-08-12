@@ -7,7 +7,8 @@ use tower_cookies::{
 use crate::{
     app::AppState,
     auth::{
-        dto::{LoginRequest, SessionResponse},
+        AuthUser,
+        dto::{AuthUserResponse, LoginRequest, SessionResponse},
         service,
     },
     config::Config,
@@ -34,7 +35,7 @@ pub async fn login(
     cookies.add(build_session_cookie(&state.config, result.session_token));
 
     Ok(Json(SessionResponse {
-        user: Some(result.user),
+        user: Some(result.user.into()),
     }))
 }
 
@@ -48,7 +49,9 @@ pub async fn current_session(
 
     let user = service::resolve_session(&state, cookie.value()).await?;
 
-    Ok(Json(SessionResponse { user }))
+    Ok(Json(SessionResponse {
+        user: user.map(Into::into),
+    }))
 }
 
 pub async fn logout(
@@ -82,4 +85,8 @@ fn removal_cookie(config: &Config) -> Cookie<'static> {
         .path("/")
         .max_age(CookieDuration::seconds(0))
         .build()
+}
+
+pub async fn authenticated_test(auth: AuthUser) -> Json<AuthUserResponse> {
+    Json(auth.into())
 }
