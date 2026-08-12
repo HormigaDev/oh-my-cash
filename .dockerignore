@@ -1,0 +1,14 @@
+.git
+.gitignore
+
+target
+frontend
+nginx
+
+.env
+.env.*
+!.env.example
+
+deploy.sh
+
+README.md
