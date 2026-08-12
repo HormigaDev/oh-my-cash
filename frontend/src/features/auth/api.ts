@@ -6,7 +6,8 @@ import type {
   LoginCredentials,
   SessionResponse,
   ThemeMode,
-  ThemeName
+  ThemeName,
+  UserRole
 } from "./types";
 
 const themes: ThemeName[] = [
@@ -24,6 +25,7 @@ const themes: ThemeName[] = [
   "contrast-dark"
 ];
 const themeModes: ThemeMode[] = ["system", "light", "dark"];
+const userRoles: UserRole[] = ["admin", "user"];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -39,7 +41,8 @@ function parseUser(value: unknown): AuthUser {
     typeof value.timezone !== "string" ||
     typeof value.locale !== "string" ||
     !themes.includes(value.theme as ThemeName) ||
-    !themeModes.includes(value.theme_mode as ThemeMode)
+    !themeModes.includes(value.theme_mode as ThemeMode) ||
+    !userRoles.includes(value.role as UserRole)
   ) {
     throw new ApiError(
       200,
@@ -56,7 +59,8 @@ function parseUser(value: unknown): AuthUser {
     timezone: value.timezone,
     locale: value.locale,
     theme: value.theme as ThemeName,
-    themeMode: value.theme_mode as ThemeMode
+    themeMode: value.theme_mode as ThemeMode,
+    role: value.role as UserRole
   };
 }
 

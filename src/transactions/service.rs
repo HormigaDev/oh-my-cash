@@ -586,6 +586,7 @@ mod tests {
             locale: "es".to_owned(),
             theme: "aurora".to_owned(),
             theme_mode: "system".to_owned(),
+            role: "user".to_owned(),
         };
         let period = MonthPeriod::parse("2026-08").unwrap();
 

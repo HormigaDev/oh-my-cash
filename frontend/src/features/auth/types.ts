@@ -9,7 +9,10 @@ export interface AuthUser {
   locale: string;
   theme: ThemeName;
   themeMode: ThemeMode;
+  role: UserRole;
 }
+
+export type UserRole = "admin" | "user";
 
 export type ThemeName =
   | "aurora"

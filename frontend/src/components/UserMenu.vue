@@ -17,6 +17,18 @@
           <q-item-section>{{ t("user.manageAccount") }}</q-item-section>
         </q-item>
         <q-item
+          v-if="auth.user?.role === 'admin'"
+          v-close-popup
+          clickable
+          class="user-menu__admin"
+          :to="{ name: 'admin-users' }"
+        >
+          <q-item-section avatar
+            ><q-icon name="admin_panel_settings"
+          /></q-item-section>
+          <q-item-section>{{ t("navigation.userManagement") }}</q-item-section>
+        </q-item>
+        <q-item
           v-close-popup
           clickable
           :disable="loggingOut"
@@ -112,5 +124,8 @@ async function handleLogout() {
   min-height: 2.75rem;
   border-radius: var(--omc-radius-sm);
   color: var(--omc-color-text-secondary);
+}
+.user-menu__admin {
+  color: var(--omc-color-negative) !important;
 }
 </style>

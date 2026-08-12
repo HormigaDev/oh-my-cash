@@ -589,6 +589,41 @@ export default {
       unexpected: "No pudimos guardar los cambios. Inténtalo de nuevo."
     }
   },
+  adminUsers: {
+    title: "Gestión de usuarios",
+    subtitle: "Crea, recupera, actualiza o elimina cuentas de forma segura.",
+    warning:
+      "Área restringida. Cada cambio requiere confirmar la contraseña del administrador.",
+    noName: "Sin nombre",
+    createEyebrow: "Nueva cuenta",
+    editEyebrow: "Editar cuenta",
+    createTitle: "Crear usuario",
+    editTitle: "Actualizar datos críticos",
+    deleteEyebrow: "Eliminar cuenta",
+    deleteTitle: "¿Eliminar este usuario?",
+    deleteDescription:
+      "Eliminarás permanentemente a {name} y todos sus datos. Esta acción no se puede deshacer.",
+    roles: { admin: "Administrador", user: "Usuario" },
+    actions: {
+      create: "Crear usuario",
+      edit: "Editar usuario",
+      save: "Guardar cambios",
+      delete: "Eliminar"
+    },
+    fields: {
+      name: "Nombre",
+      email: "Correo electrónico",
+      password: "Contraseña inicial",
+      newPassword: "Nueva contraseña (opcional)",
+      confirmPassword: "Confirmar nueva contraseña",
+      administratorPassword: "Contraseña del administrador"
+    },
+    feedback: { saved: "Cuenta guardada.", deleted: "Cuenta eliminada." },
+    errors: {
+      administratorPassword: "La contraseña del administrador no es correcta.",
+      unexpected: "No pudimos completar esta operación. Inténtalo de nuevo."
+    }
+  },
   errors: {
     notFound: {
       code: "404",

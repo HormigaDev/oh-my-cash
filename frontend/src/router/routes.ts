@@ -59,6 +59,16 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true,
           titleKey: "account.title"
         }
+      },
+      {
+        path: "admin/users",
+        name: "admin-users",
+        component: () => import("@/pages/UserManagementPage.vue"),
+        meta: {
+          requiresAuth: true,
+          requiresAdmin: true,
+          titleKey: "adminUsers.title"
+        }
       }
     ]
   },

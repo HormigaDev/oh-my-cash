@@ -564,6 +564,41 @@ export default {
       unexpected: "We couldn't save the changes. Try again."
     }
   },
+  adminUsers: {
+    title: "User management",
+    subtitle: "Create, recover, update, or delete accounts securely.",
+    warning:
+      "Restricted area. Every change requires confirmation with the administrator password.",
+    noName: "No name",
+    createEyebrow: "New account",
+    editEyebrow: "Edit account",
+    createTitle: "Create user",
+    editTitle: "Update critical details",
+    deleteEyebrow: "Delete account",
+    deleteTitle: "Delete this user?",
+    deleteDescription:
+      "You will permanently delete {name} and all of their data. This action cannot be undone.",
+    roles: { admin: "Administrator", user: "User" },
+    actions: {
+      create: "Create user",
+      edit: "Edit user",
+      save: "Save changes",
+      delete: "Delete"
+    },
+    fields: {
+      name: "Name",
+      email: "Email address",
+      password: "Initial password",
+      newPassword: "New password (optional)",
+      confirmPassword: "Confirm new password",
+      administratorPassword: "Administrator password"
+    },
+    feedback: { saved: "Account saved.", deleted: "Account deleted." },
+    errors: {
+      administratorPassword: "The administrator password is incorrect.",
+      unexpected: "We couldn't complete this operation. Try again."
+    }
+  },
   errors: {
     notFound: {
       code: "404",

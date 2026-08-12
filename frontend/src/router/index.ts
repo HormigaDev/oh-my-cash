@@ -31,6 +31,10 @@ export default defineRouter(({ store }) => {
       };
     }
 
+    if (to.meta.requiresAdmin && auth.user?.role !== "admin") {
+      return { name: "dashboard" };
+    }
+
     if (to.name === "login" && auth.isAuthenticated) {
       return { name: "dashboard" };
     }

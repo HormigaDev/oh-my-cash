@@ -11,9 +11,14 @@ async fn main() -> anyhow::Result<()> {
 
     let email = env::args()
         .nth(1)
-        .ok_or_else(|| anyhow::anyhow!("usage: cargo run --bin omc-user -- <email>"))?
+        .ok_or_else(|| anyhow::anyhow!("usage: cargo run --bin omc-user -- <email> [--admin]"))?
         .trim()
         .to_lowercase();
+    let role = if env::args().any(|argument| argument == "--admin") {
+        "admin"
+    } else {
+        "user"
+    };
 
     if !email.contains('@') {
         anyhow::bail!("invalid email");
@@ -65,6 +70,8 @@ async fn main() -> anyhow::Result<()> {
         theme: Set("aurora".to_owned()),
 
         theme_mode: Set("system".to_owned()),
+
+        role: Set(role.to_owned()),
 
         is_active: Set(true),
 

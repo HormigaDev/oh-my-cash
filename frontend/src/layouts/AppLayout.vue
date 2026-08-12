@@ -100,6 +100,22 @@
               /></q-item-section>
               <q-item-section>{{ t("navigation.account") }}</q-item-section>
             </q-item>
+            <q-item
+              v-if="auth.user?.role === 'admin'"
+              clickable
+              exact
+              :to="{ name: 'admin-users' }"
+              active-class="app-navigation__item--admin-active"
+              class="app-navigation__item--admin"
+              @click="closeDrawerOnMobile"
+            >
+              <q-item-section avatar
+                ><q-icon name="admin_panel_settings"
+              /></q-item-section>
+              <q-item-section>{{
+                t("navigation.userManagement")
+              }}</q-item-section>
+            </q-item>
           </q-list>
         </nav>
       </div>
@@ -239,6 +255,15 @@ function closeDrawerOnMobile() {
 .app-navigation__item--active {
   background: var(--omc-color-primary-soft);
   color: var(--omc-color-primary) !important;
+}
+.app-navigation__item--admin {
+  margin-top: 0.75rem;
+  border: 0.0625rem solid var(--omc-color-negative);
+  background: var(--omc-color-negative-soft);
+  color: var(--omc-color-negative) !important;
+}
+.app-navigation__item--admin-active {
+  box-shadow: inset 0 0 0 0.0625rem var(--omc-color-negative);
 }
 
 @media (min-width: 64rem) {

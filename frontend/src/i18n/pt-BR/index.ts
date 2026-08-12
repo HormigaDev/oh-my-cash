@@ -570,6 +570,41 @@ export default {
       unexpected: "Não foi possível salvar as alterações. Tente novamente."
     }
   },
+  adminUsers: {
+    title: "Gestão de usuários",
+    subtitle: "Crie, recupere, atualize ou exclua contas com segurança.",
+    warning:
+      "Área restrita. Cada alteração requer confirmação com a senha do administrador.",
+    noName: "Sem nome",
+    createEyebrow: "Nova conta",
+    editEyebrow: "Editar conta",
+    createTitle: "Criar usuário",
+    editTitle: "Atualizar dados críticos",
+    deleteEyebrow: "Excluir conta",
+    deleteTitle: "Excluir este usuário?",
+    deleteDescription:
+      "Você excluirá permanentemente {name} e todos os seus dados. Esta ação não pode ser desfeita.",
+    roles: { admin: "Administrador", user: "Usuário" },
+    actions: {
+      create: "Criar usuário",
+      edit: "Editar usuário",
+      save: "Salvar alterações",
+      delete: "Excluir"
+    },
+    fields: {
+      name: "Nome",
+      email: "E-mail",
+      password: "Senha inicial",
+      newPassword: "Nova senha (opcional)",
+      confirmPassword: "Confirmar nova senha",
+      administratorPassword: "Senha do administrador"
+    },
+    feedback: { saved: "Conta salva.", deleted: "Conta excluída." },
+    errors: {
+      administratorPassword: "A senha do administrador está incorreta.",
+      unexpected: "Não foi possível concluir esta operação. Tente novamente."
+    }
+  },
   errors: {
     notFound: {
       code: "404",

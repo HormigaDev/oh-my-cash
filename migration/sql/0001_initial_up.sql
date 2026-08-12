@@ -28,6 +28,7 @@ create table users (
     locale text not null default 'es-ES',
     theme text not null default 'aurora',
     theme_mode text not null default 'system',
+    role text not null default 'user',
 
     is_active boolean not null default true,
 
@@ -56,7 +57,10 @@ create table users (
         ),
 
     constraint users_theme_mode_chk
-        check (theme_mode in ('system', 'light', 'dark'))
+        check (theme_mode in ('system', 'light', 'dark')),
+
+    constraint users_role_chk
+        check (role in ('admin', 'user'))
 );
 
 create unique index users_email_uq on users (email);

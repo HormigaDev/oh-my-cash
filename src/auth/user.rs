@@ -12,6 +12,7 @@ pub struct AuthUser {
     pub locale: String,
     pub theme: String,
     pub theme_mode: String,
+    pub role: String,
 }
 
 impl From<users::Model> for AuthUser {
@@ -25,6 +26,7 @@ impl From<users::Model> for AuthUser {
             locale: user.locale,
             theme: user.theme,
             theme_mode: user.theme_mode,
+            role: user.role,
         }
     }
 }

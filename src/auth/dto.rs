@@ -26,6 +26,8 @@ pub struct AuthUserResponse {
     pub theme: String,
 
     pub theme_mode: String,
+
+    pub role: String,
 }
 
 impl From<AuthUser> for AuthUserResponse {
@@ -46,6 +48,8 @@ impl From<AuthUser> for AuthUserResponse {
             theme: user.theme,
 
             theme_mode: user.theme_mode,
+
+            role: user.role,
         }
     }
 }

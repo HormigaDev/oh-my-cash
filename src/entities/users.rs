@@ -16,6 +16,7 @@ pub struct Model {
     pub locale: String,
     pub theme: String,
     pub theme_mode: String,
+    pub role: String,
 
     pub is_active: bool,
 
