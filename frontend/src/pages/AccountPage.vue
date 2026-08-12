@@ -16,7 +16,7 @@
                 <template #prepend><q-icon name="mail_outline" /></template>
               </q-input>
               <div class="account-form__row">
-                <q-select v-model="profile.currency" outlined emit-value map-options :options="currencyOptions" :label="t('account.preferences.currency')" :disable="savingProfile" />
+                <q-select v-model="profile.currency" outlined emit-value map-options use-input fill-input hide-selected input-debounce="0" :options="filteredCurrencies" :label="t('account.preferences.currency')" :disable="savingProfile" @filter="filterCurrencies" />
                 <q-select v-model="profile.locale" outlined emit-value map-options :options="localeOptions" :label="t('account.preferences.language')" :disable="savingProfile" />
               </div>
               <q-select v-model="profile.timezone" outlined use-input fill-input hide-selected input-debounce="0" emit-value map-options :options="filteredTimezones" :label="t('account.preferences.timezone')" :disable="savingProfile" @filter="filterTimezones" />
@@ -83,13 +83,14 @@ import ThemePalettePicker from "@/components/ThemePalettePicker.vue";
 import { changePassword, updateProfile } from "@/features/account/api";
 import { useAuthStore } from "@/features/auth/authStore";
 import { useThemeStore } from "@/features/preferences/themeStore";
+import { currencyCodes, currencyName, currencySymbol } from "@/lib/currency";
 import { isApiError } from "@/lib/api/errors";
 
 const auth = useAuthStore();
 const theme = useThemeStore();
 const router = useRouter();
 const $q = useQuasar();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const profile = reactive({
   displayName: auth.user?.displayName ?? "",
   email: auth.user?.email ?? "",
@@ -105,11 +106,28 @@ const passwordError = ref<string | null>(null);
 const showCurrent = ref(false);
 const showNext = ref(false);
 const timezoneQuery = ref("");
-const currencyOptions = ["BRL", "EUR", "USD"].map(value => ({ label: value, value }));
-const localeOptions = [
-  { label: "Español", value: "es-ES" },
-  { label: "Português (fallback español)", value: "pt-BR" }
-];
+const currencyQuery = ref("");
+const currencyOptions = computed(() =>
+  currencyCodes
+    .map(value => ({
+      label: `${currencySymbol(value)} · ${currencyName(value, locale.value)} (${value})`,
+      value
+    }))
+    .sort((left, right) => left.label.localeCompare(right.label, locale.value))
+);
+const filteredCurrencies = computed(() => {
+  const query = currencyQuery.value.trim().toLocaleLowerCase(locale.value);
+  return query.length === 0
+    ? currencyOptions.value
+    : currencyOptions.value.filter(option =>
+        `${option.label} ${option.value}`.toLocaleLowerCase(locale.value).includes(query)
+      );
+});
+const localeOptions = computed(() => [
+  { label: t("account.languages.spanish"), value: "es-ES" },
+  { label: t("account.languages.portuguese"), value: "pt-BR" },
+  { label: t("account.languages.english"), value: "en-US" }
+]);
 const timezoneValues = ["America/Sao_Paulo", "America/Argentina/Buenos_Aires", "America/Bogota", "America/Lima", "America/Mexico_City", "America/New_York", "Europe/Madrid", "Europe/Lisbon", "UTC"];
 const filteredTimezones = computed(() => timezoneValues.filter(value => value.toLowerCase().includes(timezoneQuery.value.toLowerCase())).map(value => ({ label: value.replaceAll("_", " "), value })));
 const emailRules = [(value: string) => /^\S+@\S+\.\S+$/u.test(value.trim()) || t("account.validation.email")];
@@ -119,6 +137,10 @@ const confirmRules = [(value: string) => value === password.next || t("account.v
 
 function filterTimezones(value: string, update: (callback: () => void) => void) {
   update(() => { timezoneQuery.value = value; });
+}
+
+function filterCurrencies(value: string, update: (callback: () => void) => void) {
+  update(() => { currencyQuery.value = value; });
 }
 
 function message(error: unknown) {

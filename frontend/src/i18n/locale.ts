@@ -1,6 +1,11 @@
 export const defaultAppLocale = "es";
+export type AppLocale = "en" | "es" | "pt-BR";
 
-const supportedAppLocales = new Set([defaultAppLocale]);
+const localeByLanguage: Readonly<Record<string, AppLocale>> = {
+  en: "en",
+  es: "es",
+  pt: "pt-BR"
+};
 
 export function resolveAppLocale(locale: string | null | undefined) {
   if (locale === null || locale === undefined) {
@@ -10,13 +15,5 @@ export function resolveAppLocale(locale: string | null | undefined) {
   const normalized = locale.trim().toLowerCase();
   const language = normalized.split("-")[0] ?? "";
 
-  if (supportedAppLocales.has(normalized)) {
-    return normalized;
-  }
-
-  if (supportedAppLocales.has(language)) {
-    return language;
-  }
-
-  return defaultAppLocale;
+  return localeByLanguage[normalized] ?? localeByLanguage[language] ?? defaultAppLocale;
 }

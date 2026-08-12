@@ -49,7 +49,7 @@
             autofocus
             inputmode="decimal"
             :label="t('transactions.pay.amount')"
-            :suffix="currency"
+            :prefix="currency"
             :rules="amountRules"
             :disable="saving"
             @update:model-value="emit('clearError')"
@@ -98,6 +98,7 @@ import { useQuasar, type QForm } from "quasar";
 
 import AppDateTimeField from "@/components/AppDateTimeField.vue";
 import { useAuthStore } from "@/features/auth/authStore";
+import { currencySymbol } from "@/lib/currency";
 import {
   isValidPositiveMoney,
   normalizeDecimalInput
@@ -126,7 +127,7 @@ const form = ref<QForm | null>(null);
 const amount = ref("");
 const occurredAt = ref(nowDateTimeInput());
 
-const currency = computed(() => auth.user?.currency ?? "BRL");
+const currency = computed(() => currencySymbol(auth.user?.currency));
 const amountRules = [
   (value: string) =>
     isValidPositiveMoney(value) || t("transactions.form.amountInvalid")

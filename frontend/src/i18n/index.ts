@@ -1,3 +1,5 @@
+import en from "./en";
 import es from "./es";
+import ptBR from "./pt-BR";
 
-export default { es };
+export default { en, es, "pt-BR": ptBR };

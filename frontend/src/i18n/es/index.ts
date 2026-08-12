@@ -553,6 +553,11 @@ export default {
       language: "Idioma",
       timezone: "Zona horaria"
     },
+    languages: {
+      spanish: "Español",
+      portuguese: "Portugués",
+      english: "Inglés"
+    },
     appearance: {
       title: "Apariencia",
       description: "Elige cómo quieres ver Oh My Cash."

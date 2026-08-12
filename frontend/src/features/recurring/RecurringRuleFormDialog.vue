@@ -142,7 +142,7 @@
               outlined
               inputmode="decimal"
               :label="t('recurring.form.fixedAmount')"
-              :suffix="currency"
+              :prefix="currency"
               :rules="fixedAmountRules"
               :disable="saving"
             >
@@ -159,7 +159,7 @@
                 outlined
                 inputmode="decimal"
                 :label="t('recurring.form.estimatedAmount')"
-                :suffix="currency"
+                :prefix="currency"
                 :rules="estimatedAmountRules"
                 :disable="saving"
               />
@@ -169,7 +169,7 @@
                   outlined
                   inputmode="decimal"
                   :label="t('recurring.form.minAmount')"
-                  :suffix="currency"
+                  :prefix="currency"
                   :rules="minAmountRules"
                   :disable="saving"
                 />
@@ -178,7 +178,7 @@
                   outlined
                   inputmode="decimal"
                   :label="t('recurring.form.maxAmount')"
-                  :suffix="currency"
+                  :prefix="currency"
                   :rules="maxAmountRules"
                   :disable="saving"
                 />
@@ -266,6 +266,7 @@ import { useQuasar, type QForm } from "quasar";
 
 import AppDateField from "@/components/AppDateField.vue";
 import { useAuthStore } from "@/features/auth/authStore";
+import { currencySymbol } from "@/lib/currency";
 import type { Category } from "@/features/categories/types";
 
 import { isValidDateInput, todayDateInput } from "./date";
@@ -308,7 +309,7 @@ const notes = ref("");
 const $q = useQuasar();
 const { t } = useI18n();
 
-const currency = computed(() => auth.user?.currency ?? "BRL");
+const currency = computed(() => currencySymbol(auth.user?.currency));
 const directionOptions = computed(() => [
   {
     label: t("recurring.direction.expense"),

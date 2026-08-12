@@ -16,16 +16,17 @@ export default defineBoot(({ app }) => {
     fallbackLocale: "es",
     messages,
     numberFormats: {
+      en: {
+        decimal: { style: "decimal", maximumFractionDigits: 2 }
+      },
       es: {
-        currency: {
-          style: "currency",
-          currency: "BRL",
-          currencyDisplay: "symbol"
-        },
         decimal: {
           style: "decimal",
           maximumFractionDigits: 2
         }
+      },
+      "pt-BR": {
+        decimal: { style: "decimal", maximumFractionDigits: 2 }
       }
     }
   });

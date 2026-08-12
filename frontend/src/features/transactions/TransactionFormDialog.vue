@@ -140,7 +140,7 @@
                     : 'transactions.form.amount'
                 )
               "
-              :suffix="currency"
+              :prefix="currency"
               :rules="amountRules"
               :disable="saving"
             >
@@ -213,6 +213,7 @@ import { useQuasar, type QForm } from "quasar";
 import AppDateField from "@/components/AppDateField.vue";
 import AppDateTimeField from "@/components/AppDateTimeField.vue";
 import { useAuthStore } from "@/features/auth/authStore";
+import { currencySymbol } from "@/lib/currency";
 import type { Category } from "@/features/categories/types";
 import {
   isValidPositiveMoney,
@@ -256,7 +257,7 @@ const occurredAt = ref(nowDateTimeInput());
 const dueDate = ref<string | null>(null);
 const notes = ref("");
 
-const currency = computed(() => auth.user?.currency ?? "BRL");
+const currency = computed(() => currencySymbol(auth.user?.currency));
 const directionOptions = computed(() => [
   {
     label: t("transactions.direction.expense"),

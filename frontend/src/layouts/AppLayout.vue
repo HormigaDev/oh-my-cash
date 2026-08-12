@@ -114,17 +114,21 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { useQuasar } from "quasar";
+import quasarEnUS from "quasar/lang/en-US";
+import quasarEs from "quasar/lang/es";
+import quasarPtBR from "quasar/lang/pt-BR";
 
 import OMCBrand from "@/components/OMCBrand.vue";
 import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
 import UserMenu from "@/components/UserMenu.vue";
 import { useAuthStore } from "@/features/auth/authStore";
 import { useThemeStore } from "@/features/preferences/themeStore";
+import { resolveAppLocale, type AppLocale } from "@/i18n/locale";
 
 const drawerOpen = ref(false);
 const route = useRoute();
 const $q = useQuasar();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const auth = useAuthStore();
 const theme = useThemeStore();
 
@@ -132,6 +136,23 @@ watch(
   () => auth.user,
   user => {
     if (user) theme.hydrate(user.theme, user.themeMode);
+  },
+  { immediate: true }
+);
+
+const quasarLanguages = {
+  en: quasarEnUS,
+  es: quasarEs,
+  "pt-BR": quasarPtBR
+} as const;
+
+watch(
+  () => auth.user?.locale,
+  userLocale => {
+    const resolved = resolveAppLocale(userLocale) as AppLocale;
+    locale.value = resolved;
+    $q.lang.set(quasarLanguages[resolved]);
+    document.documentElement.lang = resolved;
   },
   { immediate: true }
 );

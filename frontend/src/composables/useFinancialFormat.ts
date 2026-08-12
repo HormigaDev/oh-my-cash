@@ -2,6 +2,7 @@ import { useI18n } from "vue-i18n";
 
 import { useAuthStore } from "@/features/auth/authStore";
 import { resolveAppLocale } from "@/i18n/locale";
+import { formatCurrency } from "@/lib/currency";
 
 const defaultCurrency = "BRL";
 const defaultLocale = "es";
@@ -20,15 +21,9 @@ export function useFinancialFormat() {
     const locale = resolveAppLocale(auth.user?.locale);
 
     try {
-      return new Intl.NumberFormat(locale, {
-        style: "currency",
-        currency
-      }).format(value);
+      return formatCurrency(value, currency, locale);
     } catch {
-      return new Intl.NumberFormat(defaultLocale, {
-        style: "currency",
-        currency: defaultCurrency
-      }).format(value);
+      return formatCurrency(value, defaultCurrency, defaultLocale);
     }
   }
 
