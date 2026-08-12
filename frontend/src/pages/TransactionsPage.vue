@@ -95,15 +95,26 @@
           </div>
           <div>
             <span>{{ t("transactions.summary.income") }}</span>
-            <strong class="transactions-summary__positive">{{ moneyTotals.income }}</strong>
+            <strong class="transactions-summary__positive">{{
+              moneyTotals.income
+            }}</strong>
           </div>
           <div>
             <span>{{ t("transactions.summary.expenses") }}</span>
-            <strong class="transactions-summary__negative">{{ moneyTotals.expenses }}</strong>
+            <strong class="transactions-summary__negative">{{
+              moneyTotals.expenses
+            }}</strong>
           </div>
           <div>
             <span>{{ t("transactions.summary.balance") }}</span>
-            <strong :class="moneyTotals.balanceValue < 0 ? 'transactions-summary__negative' : 'transactions-summary__positive'">{{ moneyTotals.balance }}</strong>
+            <strong
+              :class="
+                moneyTotals.balanceValue < 0
+                  ? 'transactions-summary__negative'
+                  : 'transactions-summary__positive'
+              "
+              >{{ moneyTotals.balance }}</strong
+            >
           </div>
         </section>
 
@@ -417,7 +428,8 @@ const moneyTotals = computed(() => {
   let income = 0;
   let expenses = 0;
   for (const transaction of transactions.value) {
-    if (transaction.status !== "paid" || transaction.actualAmount === null) continue;
+    if (transaction.status !== "paid" || transaction.actualAmount === null)
+      continue;
     const amount = decimalToNumber(transaction.actualAmount);
     if (transaction.direction === "income") income += amount;
     else expenses += amount;
@@ -756,8 +768,12 @@ onMounted(() => void loadData());
   font-size: 1.25rem;
 }
 
-.transactions-summary__positive { color: var(--omc-color-positive) !important; }
-.transactions-summary__negative { color: var(--omc-color-negative) !important; }
+.transactions-summary__positive {
+  color: var(--omc-color-positive) !important;
+}
+.transactions-summary__negative {
+  color: var(--omc-color-negative) !important;
+}
 
 .transactions-toolbar {
   display: grid;

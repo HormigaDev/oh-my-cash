@@ -386,10 +386,9 @@ const metrics = computed(() => {
       caption: summary.globalProjectionComplete
         ? t("dashboard.metrics.globalProjectedBalanceCaption")
         : t("dashboard.metrics.incomplete"),
-      className:
-        summary.globalProjectedBalance.startsWith("-")
-          ? "dashboard-metric--negative"
-          : "dashboard-metric--info"
+      className: summary.globalProjectedBalance.startsWith("-")
+        ? "dashboard-metric--negative"
+        : "dashboard-metric--info"
     },
     {
       label: t("dashboard.metrics.realBalance"),

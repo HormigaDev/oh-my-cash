@@ -95,7 +95,9 @@
               active-class="app-navigation__item--active"
               @click="closeDrawerOnMobile"
             >
-              <q-item-section avatar><q-icon name="manage_accounts" /></q-item-section>
+              <q-item-section avatar
+                ><q-icon name="manage_accounts"
+              /></q-item-section>
               <q-item-section>{{ t("navigation.account") }}</q-item-section>
             </q-item>
           </q-list>

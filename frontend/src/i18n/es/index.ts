@@ -116,7 +116,8 @@ export default {
     charts: {
       cashFlow: {
         title: "Flujo del periodo",
-        description: "Importes realizados frente al cierre proyectado del rango.",
+        description:
+          "Importes realizados frente al cierre proyectado del rango.",
         label: "Comparación de ingresos y gastos reales y proyectados",
         income: "Ingresos",
         expenses: "Gastos",
@@ -540,10 +541,12 @@ export default {
   },
   account: {
     title: "Mi cuenta",
-    subtitle: "Actualiza tu identidad, seguridad y preferencias de la aplicación.",
+    subtitle:
+      "Actualiza tu identidad, seguridad y preferencias de la aplicación.",
     profile: {
       title: "Perfil y preferencias",
-      description: "Información utilizada para personalizar y presentar tus finanzas.",
+      description:
+        "Información utilizada para personalizar y presentar tus finanzas.",
       name: "Nombre",
       email: "Correo electrónico",
       save: "Guardar perfil"
