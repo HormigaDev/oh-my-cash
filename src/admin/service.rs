@@ -1,7 +1,10 @@
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set,
 };
-use time::OffsetDateTime;
+use time::{
+    OffsetDateTime,
+    format_description::well_known::Rfc3339,
+};
 use uuid::Uuid;
 
 use crate::{
@@ -19,13 +22,13 @@ pub async fn list(
     auth: &AuthUser,
 ) -> Result<Vec<ManagedUserResponse>, AppError> {
     ensure_admin(state, auth, None).await?;
-    Ok(users::Entity::find()
+    users::Entity::find()
         .order_by_asc(users::Column::Email)
         .all(&state.db)
         .await?
         .into_iter()
         .map(response)
-        .collect())
+        .collect()
 }
 
 pub async fn create(
@@ -68,7 +71,7 @@ pub async fn create(
     .insert(&state.db)
     .await?;
 
-    Ok(response(user))
+    response(user)
 }
 
 pub async fn update(
@@ -112,7 +115,7 @@ pub async fn update(
         revoke_sessions(state, updated.id).await?;
     }
 
-    Ok(response(updated))
+    response(updated)
 }
 
 pub async fn remove(
@@ -171,14 +174,17 @@ async fn revoke_sessions(state: &AppState, user_id: Uuid) -> Result<(), AppError
     Ok(())
 }
 
-fn response(user: users::Model) -> ManagedUserResponse {
-    ManagedUserResponse {
+fn response(user: users::Model) -> Result<ManagedUserResponse, AppError> {
+    Ok(ManagedUserResponse {
         id: user.id,
         email: user.email,
         display_name: user.display_name,
         role: user.role,
-        created_at: user.created_at,
-    }
+        created_at: user
+            .created_at
+            .format(&Rfc3339)
+            .map_err(|_| AppError::Internal)?,
+    })
 }
 
 fn normalize_email(value: &str) -> Result<String, AppError> {

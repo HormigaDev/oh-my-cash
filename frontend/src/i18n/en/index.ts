@@ -2,7 +2,7 @@ export default {
   app: {
     name: "Oh My Cash",
     shortName: "OMC",
-    tagline: "Your finances, clearly"
+    tagline: "Your finances, clearly",
   },
   common: {
     cancel: "Cancel",
@@ -13,7 +13,7 @@ export default {
     logout: "Log out",
     menu: "Open menu",
     notAvailable: "—",
-    retry: "Try again"
+    retry: "Try again",
   },
   theme: {
     title: "Appearance",
@@ -39,8 +39,8 @@ export default {
       coral: "Coral",
       nord: "Nord",
       "contrast-light": "Light contrast",
-      "contrast-dark": "Dark contrast"
-    }
+      "contrast-dark": "Dark contrast",
+    },
   },
   auth: {
     login: {
@@ -58,12 +58,12 @@ export default {
       invalidCredentials: "The email or password is incorrect.",
       unavailable:
         "We couldn't connect to the service. Check your connection and try again.",
-      unexpectedError: "We couldn't log you in. Try again."
+      unexpectedError: "We couldn't log you in. Try again.",
     },
     session: {
       unavailable:
-        "We couldn't verify your session. You can try logging in again."
-    }
+        "We couldn't verify your session. You can try logging in again.",
+    },
   },
   navigation: {
     label: "Main navigation",
@@ -71,7 +71,8 @@ export default {
     transactions: "Transactions",
     recurring: "Rules",
     categories: "Categories",
-    account: "My account"
+    account: "My account",
+    userManagement: "User Management",
   },
   dashboard: {
     title: "Dashboard",
@@ -91,7 +92,7 @@ export default {
       savings: "Actual savings: {rate}",
       projectedSavings: "Projected savings: {rate}",
       pending: "Pending: {amount}",
-      incomplete: "Incomplete projection"
+      incomplete: "Incomplete projection",
     },
     month: {
       eyebrow: "Period",
@@ -99,15 +100,15 @@ export default {
       start: "Start month",
       end: "End month",
       previous: "Previous month",
-      next: "Next month"
+      next: "Next month",
     },
     projection: {
       incomplete:
-        "There is {count} pending transaction without an estimated amount. The projection is incomplete. | There are {count} pending transactions without an estimated amount. The projection is incomplete."
+        "There is {count} pending transaction without an estimated amount. The projection is incomplete. | There are {count} pending transactions without an estimated amount. The projection is incomplete.",
     },
     overdue: {
       notice:
-        "You have {count} overdue pending transaction. | You have {count} overdue pending transactions."
+        "You have {count} overdue pending transaction. | You have {count} overdue pending transactions.",
     },
     actions: { review: "Review transactions", viewAll: "View all" },
     charts: {
@@ -119,21 +120,21 @@ export default {
         income: "Income",
         expenses: "Expenses",
         actual: "Actual",
-        projected: "Projected"
+        projected: "Projected",
       },
       spending: {
         title: "Expense distribution",
         description: "Projected composition by category.",
         label: "Expense distribution by category",
-        empty: "There are no expenses to chart yet."
-      }
+        empty: "There are no expenses to chart yet.",
+      },
     },
     spending: {
       title: "Expenses by category",
       description: "Paid and pending during the period.",
       counts: "{paid} paid · {pending} pending",
       projected: "Projected",
-      empty: "There are no paid or pending expenses this month."
+      empty: "There are no paid or pending expenses this month.",
     },
     pending: {
       title: "Upcoming transactions",
@@ -142,22 +143,22 @@ export default {
       noDate: "No due date",
       due: "Due on {date}",
       overdue: "Was due on {date}",
-      empty: "You have no pending transactions this month."
+      empty: "You have no pending transactions this month.",
     },
     activity: {
       title: "Recent activity",
       description: "Latest confirmed transactions for the month.",
-      empty: "There are no paid transactions this month yet."
+      empty: "There are no paid transactions this month yet.",
     },
     loadError: {
       title: "We couldn't load the dashboard",
-      description: "Check your connection and try again in a moment."
+      description: "Check your connection and try again in a moment.",
     },
     empty: {
       title: "Your overview starts here",
       description:
-        "Once transactions are available, you'll find your metrics and recent activity here."
-    }
+        "Once transactions are available, you'll find your metrics and recent activity here.",
+    },
   },
   categories: {
     title: "Categories",
@@ -168,13 +169,13 @@ export default {
       createFirst: "Create first category",
       open: "Options for {name}",
       edit: "Edit",
-      archive: "Archive"
+      archive: "Archive",
     },
     filters: {
       label: "Search and filter categories",
       search: "Search category",
       all: "All",
-      clear: "Clear filters"
+      clear: "Clear filters",
     },
     kind: { expense: "Expense", income: "Income", both: "Income and expense" },
     form: {
@@ -189,7 +190,7 @@ export default {
       icon: "Icon",
       color: "Color",
       create: "Create category",
-      save: "Save changes"
+      save: "Save changes",
     },
     colors: {
       none: "No color",
@@ -200,7 +201,7 @@ export default {
       indigo: "Indigo",
       violet: "Violet",
       amber: "Amber",
-      rose: "Rose"
+      rose: "Rose",
     },
     icons: {
       none: "No icon",
@@ -214,38 +215,38 @@ export default {
       movie: "Entertainment",
       payments: "Payments",
       savings: "Savings",
-      work: "Work"
+      work: "Work",
     },
     empty: {
       title: "You don't have any categories yet",
       description:
-        "Create your first category to start organizing income and expenses."
+        "Create your first category to start organizing income and expenses.",
     },
     noResults: {
       title: "No categories found",
-      description: "Try another search or remove the applied filters."
+      description: "Try another search or remove the applied filters.",
     },
     loadError: {
       title: "We couldn't load the categories",
-      description: "Check your connection and try again in a moment."
+      description: "Check your connection and try again in a moment.",
     },
     archive: {
       title: "Archive category",
       description:
         "{name} will no longer appear among your available categories. This does not delete your transactions.",
-      confirm: "Archive"
+      confirm: "Archive",
     },
     feedback: {
       created: "Category created.",
       updated: "Category updated.",
-      archived: "Category archived."
+      archived: "Category archived.",
     },
     errors: {
       nameTaken: "An active category with that name already exists.",
       unavailable: "We couldn't connect to the service. Check your connection.",
       notFound: "The category is no longer available.",
-      unexpected: "We couldn't save the changes. Try again."
-    }
+      unexpected: "We couldn't save the changes. Try again.",
+    },
   },
   recurring: {
     title: "Recurring rules",
@@ -257,13 +258,13 @@ export default {
       manageCategories: "Manage categories",
       open: "Options for {name}",
       edit: "Edit",
-      deactivate: "Deactivate"
+      deactivate: "Deactivate",
     },
     filters: {
       label: "Search and filter recurring rules",
       search: "Search rule or category",
       all: "All",
-      clear: "Clear filters"
+      clear: "Clear filters",
     },
     direction: { income: "Income", expense: "Expense" },
     amount: {
@@ -272,12 +273,12 @@ export default {
       range: "Between {min} and {max}",
       from: "From {amount}",
       upTo: "Up to {amount}",
-      noRange: "No estimated range"
+      noRange: "No estimated range",
     },
     schedule: {
       monthlyDay: "Every month, on day {day}",
       fromDate: "From {date}",
-      dateRange: "From {start} to {end}"
+      dateRange: "From {start} to {end}",
     },
     categoryUnavailable: "Category unavailable",
     form: {
@@ -288,7 +289,7 @@ export default {
       sections: {
         identity: "Transaction",
         amount: "Amount",
-        schedule: "Schedule"
+        schedule: "Schedule",
       },
       name: "Rule name",
       nameRequired: "Enter a rule name.",
@@ -321,7 +322,7 @@ export default {
       dateRangeInvalid: "The end date cannot be before the start date.",
       notes: "Notes (optional)",
       create: "Create rule",
-      save: "Save changes"
+      save: "Save changes",
     },
     empty: {
       title: "You don't have recurring rules yet",
@@ -329,33 +330,33 @@ export default {
         "Add your salary, rent, or other monthly transactions to start planning.",
       noCategoriesTitle: "Create a category first",
       noCategoriesDescription:
-        "Each rule needs a category compatible with its transaction type."
+        "Each rule needs a category compatible with its transaction type.",
     },
     noResults: {
       title: "No rules found",
-      description: "Try another search or remove the applied filters."
+      description: "Try another search or remove the applied filters.",
     },
     loadError: {
       title: "We couldn't load the rules",
-      description: "Check your connection and try again in a moment."
+      description: "Check your connection and try again in a moment.",
     },
     deactivate: {
       title: "Deactivate rule",
       description:
         "{name} will stop generating future plans. Existing transactions will not be deleted.",
-      confirm: "Deactivate"
+      confirm: "Deactivate",
     },
     feedback: {
       created: "Recurring rule created.",
       updated: "Recurring rule updated.",
-      deactivated: "Recurring rule deactivated."
+      deactivated: "Recurring rule deactivated.",
     },
     errors: {
       unavailable: "We couldn't connect to the service. Check your connection.",
       notFound: "The rule or category is no longer available.",
       invalid: "Review the rule data and try again.",
-      unexpected: "We couldn't save the changes. Try again."
-    }
+      unexpected: "We couldn't save the changes. Try again.",
+    },
   },
   transactions: {
     title: "Transactions",
@@ -371,26 +372,26 @@ export default {
       pay: "Mark as paid",
       confirmPayment: "Confirm amount",
       skip: "Skip this month",
-      cancel: "Cancel transaction"
+      cancel: "Cancel transaction",
     },
     direction: { income: "Income", expense: "Expense" },
     status: {
       pending: "Pending",
       paid: "Paid",
       skipped: "Skipped",
-      cancelled: "Cancelled"
+      cancelled: "Cancelled",
     },
     source: { recurring: "Recurring" },
     amount: {
       actual: "Actual amount",
       expected: "Expected amount",
-      pendingDefinition: "Amount not set"
+      pendingDefinition: "Amount not set",
     },
     date: {
       due: "Due on {date}",
       occurred: "Completed on {date}",
       scheduled: "Scheduled for {date}",
-      notRecorded: "No date recorded"
+      notRecorded: "No date recorded",
     },
     period: "Period: {date}",
     categoryUnavailable: "Category unavailable",
@@ -402,11 +403,11 @@ export default {
       end: "End month",
       previous: "Previous month",
       next: "Next month",
-      current: "Return to current month"
+      current: "Return to current month",
     },
     materialization: {
       notice:
-        "Each month keeps an independent copy of its rules. Changes made later to a rule only apply to periods that have not been materialized yet."
+        "Each month keeps an independent copy of its rules. Changes made later to a rule only apply to periods that have not been materialized yet.",
     },
     summary: {
       label: "Transaction summary",
@@ -415,13 +416,13 @@ export default {
       total: "Total",
       income: "Paid income",
       expenses: "Paid expenses",
-      balance: "Period balance"
+      balance: "Period balance",
     },
     filters: {
       label: "Search and filter transactions",
       search: "Search transaction or category",
       all: "All",
-      clear: "Clear filters"
+      clear: "Clear filters",
     },
     form: {
       createEyebrow: "New transaction",
@@ -433,7 +434,7 @@ export default {
       statusHelp: {
         pending:
           "It will remain open even if the date has passed. You can confirm the actual amount later.",
-        paid: "It will be recorded as completed with the specified amount and date."
+        paid: "It will be recorded as completed with the specified amount and date.",
       },
       category: "Category",
       categoryRequired: "Select a category.",
@@ -454,26 +455,26 @@ export default {
       dateInvalid: "Select a valid date and time.",
       notes: "Notes (optional)",
       create: "Record transaction",
-      save: "Save changes"
+      save: "Save changes",
     },
     pay: {
       eyebrow: "Confirm transaction",
       help: "Adjust the amount to exactly reflect what you paid or received.",
       amount: "Actual amount",
       occurredAt: "Actual date and time",
-      confirm: "Confirm as paid"
+      confirm: "Confirm as paid",
     },
     skip: {
       title: "Skip this transaction",
       description:
         "{name} will be skipped only for this period. The recurring rule will remain active.",
-      confirm: "Skip this period"
+      confirm: "Skip this period",
     },
     cancel: {
       title: "Cancel transaction",
       description:
         "{name} will be cancelled and can no longer be confirmed as paid.",
-      confirm: "Cancel transaction"
+      confirm: "Cancel transaction",
     },
     empty: {
       title: "You don't have any transactions yet",
@@ -481,22 +482,22 @@ export default {
         "Record income or an expense manually. Transactions generated by your rules will also appear here.",
       noCategoriesTitle: "Create a category first",
       noCategoriesDescription:
-        "Each transaction needs a category compatible with its type."
+        "Each transaction needs a category compatible with its type.",
     },
     noResults: {
       title: "No transactions found",
-      description: "Try another search or remove the applied filters."
+      description: "Try another search or remove the applied filters.",
     },
     loadError: {
       title: "We couldn't load the transactions",
-      description: "Check your connection and try again in a moment."
+      description: "Check your connection and try again in a moment.",
     },
     feedback: {
       created: "Transaction recorded.",
       updated: "Transaction updated.",
       paid: "Transaction confirmed with the actual amount.",
       skip: "Transaction skipped for this period.",
-      cancel: "Transaction cancelled."
+      cancel: "Transaction cancelled.",
     },
     errors: {
       unavailable:
@@ -507,14 +508,14 @@ export default {
       idempotencyConflict:
         "This attempt was already used with different data. Review the transaction before submitting it again.",
       invalid: "Review the transaction data and try again.",
-      unexpected: "We couldn't complete the operation. Try again."
-    }
+      unexpected: "We couldn't complete the operation. Try again.",
+    },
   },
   user: {
     account: "Account",
     manageAccount: "Manage account",
     signedInAs: "Signed in as",
-    logoutFailed: "We couldn't log you out. Try again."
+    logoutFailed: "We couldn't log you out. Try again.",
   },
   account: {
     title: "My account",
@@ -524,21 +525,21 @@ export default {
       description: "Information used to personalize and present your finances.",
       name: "Name",
       email: "Email address",
-      save: "Save profile"
+      save: "Save profile",
     },
     preferences: {
       currency: "Currency",
       language: "Language",
-      timezone: "Time zone"
+      timezone: "Time zone",
     },
     languages: {
       spanish: "Spanish",
       portuguese: "Portuguese",
-      english: "English"
+      english: "English",
     },
     appearance: {
       title: "Appearance",
-      description: "Choose how you want Oh My Cash to look."
+      description: "Choose how you want Oh My Cash to look.",
     },
     security: {
       title: "Security",
@@ -546,23 +547,23 @@ export default {
       currentPassword: "Current password",
       newPassword: "New password",
       confirmPassword: "Confirm new password",
-      change: "Change password"
+      change: "Change password",
     },
     validation: {
       email: "Enter a valid email address.",
       required: "This field is required.",
       passwordLength: "The password must be at least 12 characters.",
-      passwordMatch: "The passwords do not match."
+      passwordMatch: "The passwords do not match.",
     },
     feedback: {
       profile: "Profile updated.",
-      password: "Password updated. Log in again."
+      password: "Password updated. Log in again.",
     },
     errors: {
       emailTaken: "That email address is already in use.",
       currentPassword: "The current password is incorrect.",
-      unexpected: "We couldn't save the changes. Try again."
-    }
+      unexpected: "We couldn't save the changes. Try again.",
+    },
   },
   adminUsers: {
     title: "User management",
@@ -583,7 +584,7 @@ export default {
       create: "Create user",
       edit: "Edit user",
       save: "Save changes",
-      delete: "Delete"
+      delete: "Delete",
     },
     fields: {
       name: "Name",
@@ -591,20 +592,20 @@ export default {
       password: "Initial password",
       newPassword: "New password (optional)",
       confirmPassword: "Confirm new password",
-      administratorPassword: "Administrator password"
+      administratorPassword: "Administrator password",
     },
     feedback: { saved: "Account saved.", deleted: "Account deleted." },
     errors: {
       administratorPassword: "The administrator password is incorrect.",
-      unexpected: "We couldn't complete this operation. Try again."
-    }
+      unexpected: "We couldn't complete this operation. Try again.",
+    },
   },
   errors: {
     notFound: {
       code: "404",
       title: "This page doesn't exist",
       description: "The address may have changed or be incorrect.",
-      action: "Return home"
-    }
-  }
+      action: "Return home",
+    },
+  },
 } as const;

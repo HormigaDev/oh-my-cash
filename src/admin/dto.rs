@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use time::OffsetDateTime;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
@@ -8,7 +7,7 @@ pub struct ManagedUserResponse {
     pub email: String,
     pub display_name: Option<String>,
     pub role: String,
-    pub created_at: OffsetDateTime,
+    pub created_at: String,
 }
 
 #[derive(Debug, Deserialize)]
