@@ -8,6 +8,12 @@ use uuid::Uuid;
 
 use crate::{entities::transactions, error::AppError};
 
+#[derive(Debug, Deserialize)]
+pub struct ListTransactionsQuery {
+    #[serde(default)]
+    pub month: Option<String>,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum TransactionDirection {

@@ -1,6 +1,6 @@
 use axum::{
     Json,
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
 };
 use uuid::Uuid;
@@ -9,10 +9,11 @@ use crate::{
     app::AppState,
     auth::AuthUser,
     error::AppError,
+    materialization::{MonthPeriod, materialize_month},
     transactions::{
         dto::{
-            CreateTransactionRequest, PayTransactionRequest, TransactionResponse,
-            UpdateTransactionRequest,
+            CreateTransactionRequest, ListTransactionsQuery, PayTransactionRequest,
+            TransactionResponse, UpdateTransactionRequest,
         },
         service,
     },
@@ -20,9 +21,18 @@ use crate::{
 
 pub async fn list(
     auth: AuthUser,
+
     State(state): State<AppState>,
+
+    Query(query): Query<ListTransactionsQuery>,
 ) -> Result<Json<Vec<TransactionResponse>>, AppError> {
-    let transactions = service::list(&state, &auth).await?;
+    let period = query.month.as_deref().map(MonthPeriod::parse).transpose()?;
+
+    if let Some(period) = period.as_ref() {
+        materialize_month(&state, &auth, period).await?;
+    }
+
+    let transactions = service::list(&state, &auth, period.as_ref()).await?;
 
     Ok(Json(transactions))
 }

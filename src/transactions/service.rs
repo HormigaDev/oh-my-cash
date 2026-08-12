@@ -1,7 +1,7 @@
 use rust_decimal::Decimal;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, DbErr, EntityTrait, NotSet, QueryFilter, QueryOrder,
-    QuerySelect, Set, SqlErr,
+    ActiveModelTrait, ColumnTrait, Condition, DbErr, EntityTrait, NotSet, QueryFilter, QueryOrder,
+    QuerySelect, Set, SqlErr, sea_query::Expr,
 };
 use time::OffsetDateTime;
 use uuid::Uuid;
@@ -11,6 +11,7 @@ use crate::{
     auth::AuthUser,
     entities::{categories, transactions},
     error::AppError,
+    materialization::MonthPeriod,
     transactions::dto::{
         CreateTransactionRequest, PayTransactionRequest, TransactionDirection, TransactionResponse,
         UpdateTransactionRequest, parse_datetime,
@@ -41,9 +42,18 @@ struct PointTransactionInput {
     notes: Option<String>,
 }
 
-pub async fn list(state: &AppState, auth: &AuthUser) -> Result<Vec<TransactionResponse>, AppError> {
-    let models = transactions::Entity::find()
-        .filter(transactions::Column::UserId.eq(auth.id))
+pub async fn list(
+    state: &AppState,
+    auth: &AuthUser,
+    period: Option<&MonthPeriod>,
+) -> Result<Vec<TransactionResponse>, AppError> {
+    let mut query = transactions::Entity::find().filter(transactions::Column::UserId.eq(auth.id));
+
+    if let Some(period) = period {
+        query = query.filter(month_filter(auth, period));
+    }
+
+    let models = query
         .order_by_desc(transactions::Column::CreatedAt)
         .limit(200)
         .all(&state.db)
@@ -435,4 +445,25 @@ fn normalize_notes(value: Option<String>) -> Result<Option<String>, AppError> {
     }
 
     Ok(Some(value.to_owned()))
+}
+
+fn month_filter(auth: &AuthUser, period: &MonthPeriod) -> Condition {
+    let recurring = Condition::all()
+        .add(transactions::Column::RecurringRuleId.is_not_null())
+        .add(transactions::Column::RecurrencePeriod.eq(period.first_day()));
+
+    let point_in_time = Condition::all()
+        .add(transactions::Column::RecurringRuleId.is_null())
+        .add(Expr::cust_with_values(
+            r#"
+                    to_char(
+                        "transactions"."occurred_at"
+                        AT TIME ZONE ?,
+                        'YYYY-MM'
+                    ) = ?
+                    "#,
+            [auth.timezone.clone(), period.key().to_owned()],
+        ));
+
+    Condition::any().add(recurring).add(point_in_time)
 }

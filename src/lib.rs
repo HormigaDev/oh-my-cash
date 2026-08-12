@@ -6,6 +6,7 @@ pub mod db;
 pub mod entities;
 pub mod error;
 pub mod health;
+pub mod materialization;
 pub mod recurring;
 pub mod transactions;
 
