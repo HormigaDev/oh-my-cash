@@ -318,6 +318,35 @@ create table transactions (
         check (
             recurrence_period is null
             or extract(day from recurrence_period) = 1
+        ),
+
+    constraint transactions_unpaid_shape_chk
+        check (
+            status = 'paid'
+            or (
+                actual_amount is null
+                and paid_at is null
+            )
+        ),
+
+    constraint transactions_skipped_recurring_chk
+        check (
+            status <> 'skipped'
+            or recurring_rule_id is not null
+        ),
+
+    constraint transactions_recurrence_shape_chk
+        check (
+            (
+                recurring_rule_id is null
+                and recurrence_period is null
+            )
+            or
+            (
+                recurring_rule_id is not null
+                and recurrence_period is not null
+                and due_date is not null
+            )
         )
 );
 
