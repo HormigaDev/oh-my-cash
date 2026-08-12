@@ -70,37 +70,34 @@ log "Deployment domain: ${DOMAIN}"
 
 log "Installing frontend dependencies"
 
-pnpm \
-    --dir "${FRONTEND_DIR}" \
-    install \
-    --frozen-lockfile
+(
+    cd "${FRONTEND_DIR}"
+
+    pnpm install \
+        --frozen-lockfile
+)
 
 log "Validating frontend"
 
-pnpm \
-    --dir "${FRONTEND_DIR}" \
-    lint
+(
+    cd "${FRONTEND_DIR}"
 
-if pnpm \
-    --dir "${FRONTEND_DIR}" \
-    run \
-    | grep -q "typecheck"
-then
-    pnpm \
-        --dir "${FRONTEND_DIR}" \
-        typecheck
-fi
+    pnpm lint
+
+    if pnpm run | grep -q "typecheck"; then
+        pnpm typecheck
+    fi
+)
 
 log "Building PWA"
 
-pnpm \
-    --dir "${FRONTEND_DIR}" \
-    quasar \
-    build \
-    -m pwa
+(
+    cd "${FRONTEND_DIR}"
 
-[[ -f "${FRONTEND_DIST}/index.html" ]] \
-    || fail "frontend build not found at ${FRONTEND_DIST}"
+    pnpm exec quasar \
+        build \
+        -m pwa
+)
 
 log "Building backend Docker image"
 
