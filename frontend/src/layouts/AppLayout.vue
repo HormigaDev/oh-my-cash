@@ -53,6 +53,18 @@
             <q-item
               clickable
               exact
+              :to="{ name: 'recurring' }"
+              active-class="app-navigation__item--active"
+              @click="closeDrawerOnMobile"
+            >
+              <q-item-section avatar>
+                <q-icon name="event_repeat" />
+              </q-item-section>
+              <q-item-section>{{ t("navigation.recurring") }}</q-item-section>
+            </q-item>
+            <q-item
+              clickable
+              exact
               :to="{ name: 'categories' }"
               active-class="app-navigation__item--active"
               @click="closeDrawerOnMobile"

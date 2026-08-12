@@ -55,5 +55,33 @@ export function useFinancialFormat() {
     }
   }
 
-  return { formatMoney, formatDate };
+  function formatDateOnly(value: string | null | undefined) {
+    if (value === null || value === undefined) {
+      return t("common.notAvailable");
+    }
+
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/u.exec(value);
+
+    if (match === null) {
+      return t("common.notAvailable");
+    }
+
+    const date = new Date(
+      Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+    );
+
+    try {
+      return new Intl.DateTimeFormat(auth.user?.locale ?? defaultLocale, {
+        dateStyle: "medium",
+        timeZone: "UTC"
+      }).format(date);
+    } catch {
+      return new Intl.DateTimeFormat(defaultLocale, {
+        dateStyle: "medium",
+        timeZone: "UTC"
+      }).format(date);
+    }
+  }
+
+  return { formatMoney, formatDate, formatDateOnly };
 }

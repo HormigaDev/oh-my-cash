@@ -32,6 +32,15 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true,
           titleKey: "categories.title"
         }
+      },
+      {
+        path: "recurring",
+        name: "recurring",
+        component: () => import("@/pages/RecurringRulesPage.vue"),
+        meta: {
+          requiresAuth: true,
+          titleKey: "recurring.title"
+        }
       }
     ]
   },
