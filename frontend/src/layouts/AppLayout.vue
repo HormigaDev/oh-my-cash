@@ -36,7 +36,7 @@
         <div class="app-drawer__brand">
           <OMCBrand />
         </div>
-        <nav :aria-label="t('navigation.dashboard')">
+        <nav :aria-label="t('navigation.label')">
           <q-list class="app-navigation">
             <q-item
               clickable
@@ -49,6 +49,18 @@
                 <q-icon name="space_dashboard" />
               </q-item-section>
               <q-item-section>{{ t("navigation.dashboard") }}</q-item-section>
+            </q-item>
+            <q-item
+              clickable
+              exact
+              :to="{ name: 'categories' }"
+              active-class="app-navigation__item--active"
+              @click="closeDrawerOnMobile"
+            >
+              <q-item-section avatar>
+                <q-icon name="category" />
+              </q-item-section>
+              <q-item-section>{{ t("navigation.categories") }}</q-item-section>
             </q-item>
           </q-list>
         </nav>

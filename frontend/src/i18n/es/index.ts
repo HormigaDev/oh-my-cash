@@ -5,6 +5,7 @@ export default {
     tagline: "Tus finanzas, con claridad"
   },
   common: {
+    cancel: "Cancelar",
     close: "Cerrar",
     loading: "Cargando",
     logout: "Cerrar sesión",
@@ -43,7 +44,9 @@ export default {
     }
   },
   navigation: {
-    dashboard: "Dashboard"
+    label: "Navegación principal",
+    dashboard: "Dashboard",
+    categories: "Categorías"
   },
   dashboard: {
     title: "Dashboard",
@@ -60,6 +63,101 @@ export default {
       title: "Tu panorama empieza aquí",
       description:
         "Cuando haya movimientos disponibles, encontrarás aquí tus métricas y actividad reciente."
+    }
+  },
+  categories: {
+    title: "Categorías",
+    subtitle:
+      "Organiza tus movimientos con categorías que se adapten a tus finanzas.",
+    count: "{count} categoría | {count} categorías",
+    actions: {
+      create: "Nueva categoría",
+      createFirst: "Crear primera categoría",
+      open: "Opciones de {name}",
+      edit: "Editar",
+      archive: "Archivar"
+    },
+    filters: {
+      label: "Buscar y filtrar categorías",
+      search: "Buscar categoría",
+      all: "Todas",
+      clear: "Limpiar filtros"
+    },
+    kind: {
+      expense: "Gasto",
+      income: "Ingreso",
+      both: "Ingreso y gasto"
+    },
+    form: {
+      createEyebrow: "Nueva categoría",
+      editEyebrow: "Editar categoría",
+      createTitle: "Crea una categoría",
+      editTitle: "Actualiza la categoría",
+      name: "Nombre",
+      nameRequired: "Introduce un nombre para la categoría.",
+      nameTooLong: "El nombre no puede superar los 80 caracteres.",
+      kind: "Tipo de movimiento",
+      icon: "Icono",
+      color: "Color",
+      create: "Crear categoría",
+      save: "Guardar cambios"
+    },
+    colors: {
+      none: "Sin color",
+      teal: "Verde azulado",
+      emerald: "Esmeralda",
+      cyan: "Cian",
+      blue: "Azul",
+      indigo: "Índigo",
+      violet: "Violeta",
+      amber: "Ámbar",
+      rose: "Rosa"
+    },
+    icons: {
+      none: "Sin icono",
+      category: "Categoría",
+      restaurant: "Alimentación",
+      home: "Hogar",
+      directions_car: "Transporte",
+      shopping_bag: "Compras",
+      health_and_safety: "Salud",
+      school: "Educación",
+      movie: "Entretenimiento",
+      payments: "Pagos",
+      savings: "Ahorro",
+      work: "Trabajo"
+    },
+    empty: {
+      title: "Aún no tienes categorías",
+      description:
+        "Crea tu primera categoría para empezar a organizar ingresos y gastos."
+    },
+    noResults: {
+      title: "No encontramos categorías",
+      description: "Prueba con otra búsqueda o elimina los filtros aplicados."
+    },
+    loadError: {
+      title: "No pudimos cargar las categorías",
+      description:
+        "Comprueba tu conexión e inténtalo de nuevo dentro de unos instantes."
+    },
+    archive: {
+      title: "Archivar categoría",
+      description:
+        "{name} dejará de aparecer entre tus categorías disponibles. Esta acción no elimina tus movimientos.",
+      confirm: "Archivar"
+    },
+    feedback: {
+      created: "Categoría creada.",
+      updated: "Categoría actualizada.",
+      archived: "Categoría archivada."
+    },
+    errors: {
+      nameTaken: "Ya existe una categoría activa con ese nombre.",
+      unavailable:
+        "No pudimos conectar con el servicio. Comprueba tu conexión.",
+      notFound: "La categoría ya no está disponible.",
+      unexpected: "No pudimos guardar los cambios. Inténtalo de nuevo."
     }
   },
   user: {

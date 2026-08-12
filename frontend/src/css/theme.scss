@@ -37,6 +37,25 @@ body.body--light {
   --omc-color-focus-ring: rgba(13, 148, 136, 0.32);
   --omc-color-scrim: rgba(8, 27, 29, 0.45);
   --omc-color-decoration: rgba(20, 184, 166, 0.12);
+  --omc-category-neutral: #64748b;
+  --omc-category-neutral-soft: #e2e8f0;
+  --omc-category-teal: #0f766e;
+  --omc-category-teal-soft: #ccfbf1;
+  --omc-category-emerald: #047857;
+  --omc-category-emerald-soft: #d1fae5;
+  --omc-category-cyan: #0e7490;
+  --omc-category-cyan-soft: #cffafe;
+  --omc-category-blue: #1d4ed8;
+  --omc-category-blue-soft: #dbeafe;
+  --omc-category-indigo: #4338ca;
+  --omc-category-indigo-soft: #e0e7ff;
+  --omc-category-violet: #7e22ce;
+  --omc-category-violet-soft: #f3e8ff;
+  --omc-category-amber: #b45309;
+  --omc-category-amber-soft: #fef3c7;
+  --omc-category-rose: #be123c;
+  --omc-category-rose-soft: #ffe4e6;
+  --omc-category-color-on: #ffffff;
   --q-primary: var(--omc-color-primary);
   --q-secondary: var(--omc-color-text-secondary);
   --q-accent: var(--omc-color-accent);
@@ -74,6 +93,25 @@ body.body--dark {
   --omc-color-focus-ring: rgba(94, 234, 212, 0.34);
   --omc-color-scrim: rgba(0, 0, 0, 0.64);
   --omc-color-decoration: rgba(45, 212, 191, 0.09);
+  --omc-category-neutral: #94a3b8;
+  --omc-category-neutral-soft: #293841;
+  --omc-category-teal: #5eead4;
+  --omc-category-teal-soft: #163b3a;
+  --omc-category-emerald: #6ee7b7;
+  --omc-category-emerald-soft: #183a30;
+  --omc-category-cyan: #67e8f9;
+  --omc-category-cyan-soft: #173b43;
+  --omc-category-blue: #93c5fd;
+  --omc-category-blue-soft: #1c3553;
+  --omc-category-indigo: #a5b4fc;
+  --omc-category-indigo-soft: #2d3154;
+  --omc-category-violet: #d8b4fe;
+  --omc-category-violet-soft: #3b2850;
+  --omc-category-amber: #fcd34d;
+  --omc-category-amber-soft: #443617;
+  --omc-category-rose: #fda4af;
+  --omc-category-rose-soft: #48262e;
+  --omc-category-color-on: #071a1b;
   --q-primary: var(--omc-color-primary);
   --q-secondary: var(--omc-color-text-secondary);
   --q-accent: var(--omc-color-accent);
@@ -82,4 +120,49 @@ body.body--dark {
   --q-warning: var(--omc-color-warning);
   --q-info: var(--omc-color-info);
   color-scheme: dark;
+}
+
+.category-color--neutral {
+  --omc-category-color: var(--omc-category-neutral);
+  --omc-category-color-soft: var(--omc-category-neutral-soft);
+}
+
+.category-color--teal {
+  --omc-category-color: var(--omc-category-teal);
+  --omc-category-color-soft: var(--omc-category-teal-soft);
+}
+
+.category-color--emerald {
+  --omc-category-color: var(--omc-category-emerald);
+  --omc-category-color-soft: var(--omc-category-emerald-soft);
+}
+
+.category-color--cyan {
+  --omc-category-color: var(--omc-category-cyan);
+  --omc-category-color-soft: var(--omc-category-cyan-soft);
+}
+
+.category-color--blue {
+  --omc-category-color: var(--omc-category-blue);
+  --omc-category-color-soft: var(--omc-category-blue-soft);
+}
+
+.category-color--indigo {
+  --omc-category-color: var(--omc-category-indigo);
+  --omc-category-color-soft: var(--omc-category-indigo-soft);
+}
+
+.category-color--violet {
+  --omc-category-color: var(--omc-category-violet);
+  --omc-category-color-soft: var(--omc-category-violet-soft);
+}
+
+.category-color--amber {
+  --omc-category-color: var(--omc-category-amber);
+  --omc-category-color-soft: var(--omc-category-amber-soft);
+}
+
+.category-color--rose {
+  --omc-category-color: var(--omc-category-rose);
+  --omc-category-color-soft: var(--omc-category-rose-soft);
 }

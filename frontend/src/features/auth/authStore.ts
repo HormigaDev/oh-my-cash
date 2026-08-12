@@ -62,6 +62,12 @@ export const useAuthStore = defineStore("auth", () => {
     sessionUnavailable.value = false;
   }
 
+  function expireSession() {
+    user.value = null;
+    status.value = "anonymous";
+    sessionUnavailable.value = false;
+  }
+
   return {
     status,
     user,
@@ -69,6 +75,7 @@ export const useAuthStore = defineStore("auth", () => {
     isAuthenticated,
     bootstrapSession,
     login,
-    logout
+    logout,
+    expireSession
   };
 });

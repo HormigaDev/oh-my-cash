@@ -1,6 +1,6 @@
 import { defineConfig } from "#q-app";
 
-export default defineConfig((ctx) => {
+export default defineConfig(ctx => {
   const apiProxyTarget =
     process.env.VITE_API_PROXY_TARGET ?? "http://127.0.0.1:8383";
 
@@ -13,7 +13,7 @@ export default defineConfig((ctx) => {
     build: {
       typescript: {
         strict: true,
-        vueShim: true,
+        vueShim: true
       },
       vueRouterMode: "history",
       vitePlugins: [
@@ -21,10 +21,10 @@ export default defineConfig((ctx) => {
           "@intlify/unplugin-vue-i18n/vite",
           {
             ssr: ctx.mode.ssr || ctx.mode.ssg,
-            include: [ctx.appPaths.resolve.app("src/i18n")],
-          },
-        ],
-      ],
+            include: [ctx.appPaths.resolve.app("src/i18n")]
+          }
+        ]
+      ]
     },
     devServer: {
       open: true,
@@ -32,18 +32,18 @@ export default defineConfig((ctx) => {
       proxy: {
         "/api": {
           target: apiProxyTarget,
-          changeOrigin: true,
+          changeOrigin: true
         },
         "/health": {
           target: apiProxyTarget,
-          changeOrigin: true,
-        },
-      },
+          changeOrigin: true
+        }
+      }
     },
     framework: {
       config: {},
       lang: "es",
-      plugins: ["Notify"],
+      plugins: ["Notify"]
     },
     animations: ["fadeIn", "fadeOut"],
     pwa: {
@@ -52,7 +52,7 @@ export default defineConfig((ctx) => {
       extendPWAGenerateSWOptions(options) {
         options.navigateFallback = "index.html";
         options.navigateFallbackDenylist = [/^\/api\//, /^\/health\//];
-      },
-    },
+      }
+    }
   };
 });

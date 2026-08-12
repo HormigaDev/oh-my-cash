@@ -23,6 +23,15 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true,
           titleKey: "dashboard.title"
         }
+      },
+      {
+        path: "categories",
+        name: "categories",
+        component: () => import("@/pages/CategoriesPage.vue"),
+        meta: {
+          requiresAuth: true,
+          titleKey: "categories.title"
+        }
       }
     ]
   },
