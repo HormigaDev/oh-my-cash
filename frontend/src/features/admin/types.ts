@@ -10,5 +10,5 @@ export interface AdminUserInput {
   email: string;
   displayName: string | null;
   administratorPassword: string;
-  password?: string;
+  password?: string | undefined;
 }

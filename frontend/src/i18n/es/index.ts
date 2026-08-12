@@ -2,7 +2,7 @@ export default {
   app: {
     name: "Oh My Cash",
     shortName: "OMC",
-    tagline: "Tus finanzas, con claridad",
+    tagline: "Tus finanzas, con claridad"
   },
   common: {
     cancel: "Cancelar",
@@ -13,7 +13,7 @@ export default {
     logout: "Cerrar sesión",
     menu: "Abrir menú",
     notAvailable: "—",
-    retry: "Reintentar",
+    retry: "Reintentar"
   },
   theme: {
     title: "Apariencia",
@@ -39,8 +39,8 @@ export default {
       coral: "Coral",
       nord: "Nord",
       "contrast-light": "Contraste claro",
-      "contrast-dark": "Contraste oscuro",
-    },
+      "contrast-dark": "Contraste oscuro"
+    }
   },
   auth: {
     login: {
@@ -58,12 +58,12 @@ export default {
       invalidCredentials: "El correo o la contraseña no son correctos.",
       unavailable:
         "No pudimos conectar con el servicio. Comprueba tu conexión e inténtalo de nuevo.",
-      unexpectedError: "No pudimos iniciar sesión. Inténtalo de nuevo.",
+      unexpectedError: "No pudimos iniciar sesión. Inténtalo de nuevo."
     },
     session: {
       unavailable:
-        "No fue posible comprobar tu sesión. Puedes intentar iniciar sesión de nuevo.",
-    },
+        "No fue posible comprobar tu sesión. Puedes intentar iniciar sesión de nuevo."
+    }
   },
   navigation: {
     label: "Navegación principal",
@@ -72,7 +72,7 @@ export default {
     recurring: "Reglas",
     categories: "Categorías",
     account: "Mi cuenta",
-    userManagement: "Gestión de usuarios",
+    userManagement: "Gestión de usuarios"
   },
   dashboard: {
     title: "Dashboard",
@@ -92,7 +92,7 @@ export default {
       savings: "Ahorro real: {rate}",
       projectedSavings: "Ahorro proyectado: {rate}",
       pending: "Pendiente: {amount}",
-      incomplete: "Proyección incompleta",
+      incomplete: "Proyección incompleta"
     },
     month: {
       eyebrow: "Periodo",
@@ -100,19 +100,19 @@ export default {
       start: "Mes inicial",
       end: "Mes final",
       previous: "Mes anterior",
-      next: "Mes siguiente",
+      next: "Mes siguiente"
     },
     projection: {
       incomplete:
-        "Hay {count} movimiento pendiente sin importe estimado. La proyección no está completa. | Hay {count} movimientos pendientes sin importe estimado. La proyección no está completa.",
+        "Hay {count} movimiento pendiente sin importe estimado. La proyección no está completa. | Hay {count} movimientos pendientes sin importe estimado. La proyección no está completa."
     },
     overdue: {
       notice:
-        "Tienes {count} movimiento vencido pendiente. | Tienes {count} movimientos vencidos pendientes.",
+        "Tienes {count} movimiento vencido pendiente. | Tienes {count} movimientos vencidos pendientes."
     },
     actions: {
       review: "Revisar movimientos",
-      viewAll: "Ver todos",
+      viewAll: "Ver todos"
     },
     charts: {
       cashFlow: {
@@ -123,21 +123,21 @@ export default {
         income: "Ingresos",
         expenses: "Gastos",
         actual: "Real",
-        projected: "Proyectado",
+        projected: "Proyectado"
       },
       spending: {
         title: "Distribución del gasto",
         description: "Composición proyectada por categoría.",
         label: "Distribución de gastos por categoría",
-        empty: "Aún no hay gastos para representar.",
-      },
+        empty: "Aún no hay gastos para representar."
+      }
     },
     spending: {
       title: "Gastos por categoría",
       description: "Pagado y pendiente durante el periodo.",
       counts: "{paid} pagados · {pending} pendientes",
       projected: "Proyectado",
-      empty: "No hay gastos pagados o pendientes en este mes.",
+      empty: "No hay gastos pagados o pendientes en este mes."
     },
     pending: {
       title: "Próximos movimientos",
@@ -146,23 +146,23 @@ export default {
       noDate: "Sin fecha prevista",
       due: "Vence el {date}",
       overdue: "Venció el {date}",
-      empty: "No tienes movimientos pendientes este mes.",
+      empty: "No tienes movimientos pendientes este mes."
     },
     activity: {
       title: "Actividad reciente",
       description: "Últimos movimientos confirmados del mes.",
-      empty: "Todavía no hay movimientos pagados en este mes.",
+      empty: "Todavía no hay movimientos pagados en este mes."
     },
     loadError: {
       title: "No pudimos cargar el dashboard",
       description:
-        "Comprueba tu conexión e inténtalo de nuevo dentro de unos instantes.",
+        "Comprueba tu conexión e inténtalo de nuevo dentro de unos instantes."
     },
     empty: {
       title: "Tu panorama empieza aquí",
       description:
-        "Cuando haya movimientos disponibles, encontrarás aquí tus métricas y actividad reciente.",
-    },
+        "Cuando haya movimientos disponibles, encontrarás aquí tus métricas y actividad reciente."
+    }
   },
   categories: {
     title: "Categorías",
@@ -174,18 +174,18 @@ export default {
       createFirst: "Crear primera categoría",
       open: "Opciones de {name}",
       edit: "Editar",
-      archive: "Archivar",
+      archive: "Archivar"
     },
     filters: {
       label: "Buscar y filtrar categorías",
       search: "Buscar categoría",
       all: "Todas",
-      clear: "Limpiar filtros",
+      clear: "Limpiar filtros"
     },
     kind: {
       expense: "Gasto",
       income: "Ingreso",
-      both: "Ingreso y gasto",
+      both: "Ingreso y gasto"
     },
     form: {
       createEyebrow: "Nueva categoría",
@@ -199,7 +199,7 @@ export default {
       icon: "Icono",
       color: "Color",
       create: "Crear categoría",
-      save: "Guardar cambios",
+      save: "Guardar cambios"
     },
     colors: {
       none: "Sin color",
@@ -210,7 +210,7 @@ export default {
       indigo: "Índigo",
       violet: "Violeta",
       amber: "Ámbar",
-      rose: "Rosa",
+      rose: "Rosa"
     },
     icons: {
       none: "Sin icono",
@@ -224,40 +224,40 @@ export default {
       movie: "Entretenimiento",
       payments: "Pagos",
       savings: "Ahorro",
-      work: "Trabajo",
+      work: "Trabajo"
     },
     empty: {
       title: "Aún no tienes categorías",
       description:
-        "Crea tu primera categoría para empezar a organizar ingresos y gastos.",
+        "Crea tu primera categoría para empezar a organizar ingresos y gastos."
     },
     noResults: {
       title: "No encontramos categorías",
-      description: "Prueba con otra búsqueda o elimina los filtros aplicados.",
+      description: "Prueba con otra búsqueda o elimina los filtros aplicados."
     },
     loadError: {
       title: "No pudimos cargar las categorías",
       description:
-        "Comprueba tu conexión e inténtalo de nuevo dentro de unos instantes.",
+        "Comprueba tu conexión e inténtalo de nuevo dentro de unos instantes."
     },
     archive: {
       title: "Archivar categoría",
       description:
         "{name} dejará de aparecer entre tus categorías disponibles. Esta acción no elimina tus movimientos.",
-      confirm: "Archivar",
+      confirm: "Archivar"
     },
     feedback: {
       created: "Categoría creada.",
       updated: "Categoría actualizada.",
-      archived: "Categoría archivada.",
+      archived: "Categoría archivada."
     },
     errors: {
       nameTaken: "Ya existe una categoría activa con ese nombre.",
       unavailable:
         "No pudimos conectar con el servicio. Comprueba tu conexión.",
       notFound: "La categoría ya no está disponible.",
-      unexpected: "No pudimos guardar los cambios. Inténtalo de nuevo.",
-    },
+      unexpected: "No pudimos guardar los cambios. Inténtalo de nuevo."
+    }
   },
   recurring: {
     title: "Reglas recurrentes",
@@ -269,17 +269,17 @@ export default {
       manageCategories: "Gestionar categorías",
       open: "Opciones de {name}",
       edit: "Editar",
-      deactivate: "Desactivar",
+      deactivate: "Desactivar"
     },
     filters: {
       label: "Buscar y filtrar reglas recurrentes",
       search: "Buscar regla o categoría",
       all: "Todas",
-      clear: "Limpiar filtros",
+      clear: "Limpiar filtros"
     },
     direction: {
       income: "Ingreso",
-      expense: "Gasto",
+      expense: "Gasto"
     },
     amount: {
       fixed: "Importe fijo",
@@ -287,12 +287,12 @@ export default {
       range: "Entre {min} y {max}",
       from: "Desde {amount}",
       upTo: "Hasta {amount}",
-      noRange: "Sin rango estimado",
+      noRange: "Sin rango estimado"
     },
     schedule: {
       monthlyDay: "Cada mes, el día {day}",
       fromDate: "Desde {date}",
-      dateRange: "Del {start} al {end}",
+      dateRange: "Del {start} al {end}"
     },
     categoryUnavailable: "Categoría no disponible",
     form: {
@@ -303,7 +303,7 @@ export default {
       sections: {
         identity: "Movimiento",
         amount: "Importe",
-        schedule: "Calendario",
+        schedule: "Calendario"
       },
       name: "Nombre de la regla",
       nameRequired: "Introduce un nombre para la regla.",
@@ -337,7 +337,7 @@ export default {
         "La fecha de fin no puede ser anterior a la fecha de inicio.",
       notes: "Notas (opcional)",
       create: "Crear regla",
-      save: "Guardar cambios",
+      save: "Guardar cambios"
     },
     empty: {
       title: "Aún no tienes reglas recurrentes",
@@ -345,35 +345,35 @@ export default {
         "Añade tu salario, alquiler u otros movimientos mensuales para empezar a planificar.",
       noCategoriesTitle: "Primero crea una categoría",
       noCategoriesDescription:
-        "Cada regla necesita una categoría compatible con su tipo de movimiento.",
+        "Cada regla necesita una categoría compatible con su tipo de movimiento."
     },
     noResults: {
       title: "No encontramos reglas",
-      description: "Prueba con otra búsqueda o elimina los filtros aplicados.",
+      description: "Prueba con otra búsqueda o elimina los filtros aplicados."
     },
     loadError: {
       title: "No pudimos cargar las reglas",
       description:
-        "Comprueba tu conexión e inténtalo de nuevo dentro de unos instantes.",
+        "Comprueba tu conexión e inténtalo de nuevo dentro de unos instantes."
     },
     deactivate: {
       title: "Desactivar regla",
       description:
         "{name} dejará de generar planificación futura. Los movimientos existentes no se eliminan.",
-      confirm: "Desactivar",
+      confirm: "Desactivar"
     },
     feedback: {
       created: "Regla recurrente creada.",
       updated: "Regla recurrente actualizada.",
-      deactivated: "Regla recurrente desactivada.",
+      deactivated: "Regla recurrente desactivada."
     },
     errors: {
       unavailable:
         "No pudimos conectar con el servicio. Comprueba tu conexión.",
       notFound: "La regla o la categoría ya no está disponible.",
       invalid: "Revisa los datos de la regla e inténtalo de nuevo.",
-      unexpected: "No pudimos guardar los cambios. Inténtalo de nuevo.",
-    },
+      unexpected: "No pudimos guardar los cambios. Inténtalo de nuevo."
+    }
   },
   transactions: {
     title: "Movimientos",
@@ -389,31 +389,31 @@ export default {
       pay: "Marcar como pagado",
       confirmPayment: "Confirmar importe",
       skip: "Omitir este mes",
-      cancel: "Cancelar movimiento",
+      cancel: "Cancelar movimiento"
     },
     direction: {
       income: "Ingreso",
-      expense: "Gasto",
+      expense: "Gasto"
     },
     status: {
       pending: "Pendiente",
       paid: "Pagado",
       skipped: "Omitido",
-      cancelled: "Cancelado",
+      cancelled: "Cancelado"
     },
     source: {
-      recurring: "Recurrente",
+      recurring: "Recurrente"
     },
     amount: {
       actual: "Importe real",
       expected: "Importe esperado",
-      pendingDefinition: "Importe por definir",
+      pendingDefinition: "Importe por definir"
     },
     date: {
       due: "Vence el {date}",
       occurred: "Realizado el {date}",
       scheduled: "Programado para el {date}",
-      notRecorded: "Sin fecha registrada",
+      notRecorded: "Sin fecha registrada"
     },
     period: "Periodo: {date}",
     categoryUnavailable: "Categoría no disponible",
@@ -425,11 +425,11 @@ export default {
       end: "Mes final",
       previous: "Mes anterior",
       next: "Mes siguiente",
-      current: "Volver al mes actual",
+      current: "Volver al mes actual"
     },
     materialization: {
       notice:
-        "Cada mes conserva una copia independiente de sus reglas. Los cambios que hagas después en una regla sólo se aplicarán a periodos que aún no se hayan materializado.",
+        "Cada mes conserva una copia independiente de sus reglas. Los cambios que hagas después en una regla sólo se aplicarán a periodos que aún no se hayan materializado."
     },
     summary: {
       label: "Resumen de movimientos",
@@ -438,13 +438,13 @@ export default {
       total: "Total",
       income: "Ingresos pagados",
       expenses: "Gastos pagados",
-      balance: "Balance del periodo",
+      balance: "Balance del periodo"
     },
     filters: {
       label: "Buscar y filtrar movimientos",
       search: "Buscar movimiento o categoría",
       all: "Todos",
-      clear: "Limpiar filtros",
+      clear: "Limpiar filtros"
     },
     form: {
       createEyebrow: "Nuevo movimiento",
@@ -456,7 +456,7 @@ export default {
       statusHelp: {
         pending:
           "Quedará abierto aunque la fecha ya haya pasado. Podrás confirmar el importe real más adelante.",
-        paid: "Se registrará como realizado con el importe y la fecha indicados.",
+        paid: "Se registrará como realizado con el importe y la fecha indicados."
       },
       category: "Categoría",
       categoryRequired: "Selecciona una categoría.",
@@ -477,26 +477,26 @@ export default {
       dateInvalid: "Selecciona una fecha y hora válidas.",
       notes: "Notas (opcional)",
       create: "Registrar movimiento",
-      save: "Guardar cambios",
+      save: "Guardar cambios"
     },
     pay: {
       eyebrow: "Confirmar movimiento",
       help: "Ajusta el importe para reflejar exactamente lo que pagaste o recibiste.",
       amount: "Importe real",
       occurredAt: "Fecha y hora reales",
-      confirm: "Confirmar como pagado",
+      confirm: "Confirmar como pagado"
     },
     skip: {
       title: "Omitir este movimiento",
       description:
         "{name} quedará como omitido únicamente en este periodo. La regla recurrente seguirá activa.",
-      confirm: "Omitir este periodo",
+      confirm: "Omitir este periodo"
     },
     cancel: {
       title: "Cancelar movimiento",
       description:
         "{name} quedará cancelado y ya no podrá confirmarse como pagado.",
-      confirm: "Cancelar movimiento",
+      confirm: "Cancelar movimiento"
     },
     empty: {
       title: "Aún no tienes movimientos",
@@ -504,23 +504,23 @@ export default {
         "Registra un ingreso o gasto manual. Los movimientos generados por tus reglas también aparecerán aquí.",
       noCategoriesTitle: "Primero crea una categoría",
       noCategoriesDescription:
-        "Cada movimiento necesita una categoría compatible con su tipo.",
+        "Cada movimiento necesita una categoría compatible con su tipo."
     },
     noResults: {
       title: "No encontramos movimientos",
-      description: "Prueba con otra búsqueda o elimina los filtros aplicados.",
+      description: "Prueba con otra búsqueda o elimina los filtros aplicados."
     },
     loadError: {
       title: "No pudimos cargar los movimientos",
       description:
-        "Comprueba tu conexión e inténtalo de nuevo dentro de unos instantes.",
+        "Comprueba tu conexión e inténtalo de nuevo dentro de unos instantes."
     },
     feedback: {
       created: "Movimiento registrado.",
       updated: "Movimiento actualizado.",
       paid: "Movimiento confirmado con el importe real.",
       skip: "Movimiento omitido para este periodo.",
-      cancel: "Movimiento cancelado.",
+      cancel: "Movimiento cancelado."
     },
     errors: {
       unavailable:
@@ -531,14 +531,14 @@ export default {
       idempotencyConflict:
         "Este intento ya se utilizó con otros datos. Revisa el movimiento antes de volver a enviarlo.",
       invalid: "Revisa los datos del movimiento e inténtalo de nuevo.",
-      unexpected: "No pudimos completar la operación. Inténtalo de nuevo.",
-    },
+      unexpected: "No pudimos completar la operación. Inténtalo de nuevo."
+    }
   },
   user: {
     account: "Cuenta",
     manageAccount: "Gestionar cuenta",
     signedInAs: "Sesión iniciada como",
-    logoutFailed: "No pudimos cerrar tu sesión. Inténtalo de nuevo.",
+    logoutFailed: "No pudimos cerrar tu sesión. Inténtalo de nuevo."
   },
   account: {
     title: "Mi cuenta",
@@ -550,21 +550,21 @@ export default {
         "Información utilizada para personalizar y presentar tus finanzas.",
       name: "Nombre",
       email: "Correo electrónico",
-      save: "Guardar perfil",
+      save: "Guardar perfil"
     },
     preferences: {
       currency: "Moneda",
       language: "Idioma",
-      timezone: "Zona horaria",
+      timezone: "Zona horaria"
     },
     languages: {
       spanish: "Español",
       portuguese: "Portugués",
-      english: "Inglés",
+      english: "Inglés"
     },
     appearance: {
       title: "Apariencia",
-      description: "Elige cómo quieres ver Oh My Cash.",
+      description: "Elige cómo quieres ver Oh My Cash."
     },
     security: {
       title: "Seguridad",
@@ -572,23 +572,23 @@ export default {
       currentPassword: "Contraseña actual",
       newPassword: "Nueva contraseña",
       confirmPassword: "Confirmar nueva contraseña",
-      change: "Cambiar contraseña",
+      change: "Cambiar contraseña"
     },
     validation: {
       email: "Introduce un correo electrónico válido.",
       required: "Este campo es obligatorio.",
       passwordLength: "La contraseña debe tener al menos 12 caracteres.",
-      passwordMatch: "Las contraseñas no coinciden.",
+      passwordMatch: "Las contraseñas no coinciden."
     },
     feedback: {
       profile: "Perfil actualizado.",
-      password: "Contraseña actualizada. Inicia sesión de nuevo.",
+      password: "Contraseña actualizada. Inicia sesión de nuevo."
     },
     errors: {
       emailTaken: "Ese correo electrónico ya está en uso.",
       currentPassword: "La contraseña actual no es correcta.",
-      unexpected: "No pudimos guardar los cambios. Inténtalo de nuevo.",
-    },
+      unexpected: "No pudimos guardar los cambios. Inténtalo de nuevo."
+    }
   },
   adminUsers: {
     title: "Gestión de usuarios",
@@ -609,7 +609,7 @@ export default {
       create: "Crear usuario",
       edit: "Editar usuario",
       save: "Guardar cambios",
-      delete: "Eliminar",
+      delete: "Eliminar"
     },
     fields: {
       name: "Nombre",
@@ -617,20 +617,20 @@ export default {
       password: "Contraseña inicial",
       newPassword: "Nueva contraseña (opcional)",
       confirmPassword: "Confirmar nueva contraseña",
-      administratorPassword: "Contraseña del administrador",
+      administratorPassword: "Contraseña del administrador"
     },
     feedback: { saved: "Cuenta guardada.", deleted: "Cuenta eliminada." },
     errors: {
       administratorPassword: "La contraseña del administrador no es correcta.",
-      unexpected: "No pudimos completar esta operación. Inténtalo de nuevo.",
-    },
+      unexpected: "No pudimos completar esta operación. Inténtalo de nuevo."
+    }
   },
   errors: {
     notFound: {
       code: "404",
       title: "Esta página no existe",
       description: "La dirección puede haber cambiado o ser incorrecta.",
-      action: "Volver al inicio",
-    },
-  },
+      action: "Volver al inicio"
+    }
+  }
 } as const;
