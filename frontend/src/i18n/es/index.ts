@@ -46,6 +46,7 @@ export default {
   navigation: {
     label: "Navegación principal",
     dashboard: "Dashboard",
+    transactions: "Movimientos",
     recurring: "Recurrentes",
     categories: "Categorías"
   },
@@ -275,6 +276,139 @@ export default {
       notFound: "La regla o la categoría ya no está disponible.",
       invalid: "Revisa los datos de la regla e inténtalo de nuevo.",
       unexpected: "No pudimos guardar los cambios. Inténtalo de nuevo."
+    }
+  },
+  transactions: {
+    title: "Movimientos",
+    subtitle:
+      "Registra lo que entra y sale, y confirma tus pagos planificados.",
+    count: "{count} movimiento | {count} movimientos",
+    actions: {
+      create: "Nuevo movimiento",
+      createFirst: "Registrar primer movimiento",
+      manageCategories: "Gestionar categorías",
+      open: "Opciones de {name}",
+      edit: "Editar",
+      pay: "Marcar como pagado",
+      confirmPayment: "Confirmar importe",
+      skip: "Omitir este mes",
+      cancel: "Cancelar movimiento"
+    },
+    direction: {
+      income: "Ingreso",
+      expense: "Gasto"
+    },
+    status: {
+      pending: "Pendiente",
+      paid: "Pagado",
+      skipped: "Omitido",
+      cancelled: "Cancelado"
+    },
+    source: {
+      recurring: "Recurrente"
+    },
+    amount: {
+      actual: "Importe real",
+      expected: "Importe esperado",
+      pendingDefinition: "Importe por definir"
+    },
+    date: {
+      due: "Vence el {date}",
+      occurred: "Realizado el {date}",
+      scheduled: "Programado para el {date}",
+      notRecorded: "Sin fecha registrada"
+    },
+    period: "Periodo: {date}",
+    categoryUnavailable: "Categoría no disponible",
+    summary: {
+      label: "Resumen de movimientos",
+      pending: "Pendientes",
+      paid: "Pagados",
+      total: "Total"
+    },
+    filters: {
+      label: "Buscar y filtrar movimientos",
+      search: "Buscar movimiento o categoría",
+      all: "Todos",
+      clear: "Limpiar filtros"
+    },
+    form: {
+      createEyebrow: "Nuevo movimiento",
+      editEyebrow: "Editar movimiento",
+      createTitle: "Registra un ingreso o gasto",
+      editTitle: "Actualiza el movimiento",
+      direction: "Tipo de movimiento",
+      category: "Categoría",
+      categoryRequired: "Selecciona una categoría.",
+      noCompatibleCategories: "No hay categorías compatibles",
+      categoryRequiredForDirection:
+        "Necesitas una categoría compatible con este tipo de movimiento.",
+      manageCategories: "Crear categoría",
+      description: "Descripción",
+      descriptionRequired: "Introduce una descripción.",
+      descriptionTooLong: "La descripción no puede superar los 160 caracteres.",
+      amount: "Importe",
+      amountInvalid:
+        "Introduce un importe mayor que cero con un máximo de dos decimales.",
+      occurredAt: "Fecha y hora",
+      dateInvalid: "Selecciona una fecha y hora válidas.",
+      notes: "Notas (opcional)",
+      create: "Registrar movimiento",
+      save: "Guardar cambios"
+    },
+    pay: {
+      eyebrow: "Confirmar movimiento",
+      help: "Ajusta el importe para reflejar exactamente lo que pagaste o recibiste.",
+      amount: "Importe real",
+      occurredAt: "Fecha y hora reales",
+      confirm: "Confirmar como pagado"
+    },
+    skip: {
+      title: "Omitir este movimiento",
+      description:
+        "{name} quedará como omitido únicamente en este periodo. La regla recurrente seguirá activa.",
+      confirm: "Omitir este periodo"
+    },
+    cancel: {
+      title: "Cancelar movimiento",
+      description:
+        "{name} quedará cancelado y ya no podrá confirmarse como pagado.",
+      confirm: "Cancelar movimiento"
+    },
+    empty: {
+      title: "Aún no tienes movimientos",
+      description:
+        "Registra un ingreso o gasto manual. Los movimientos generados por tus reglas también aparecerán aquí.",
+      noCategoriesTitle: "Primero crea una categoría",
+      noCategoriesDescription:
+        "Cada movimiento necesita una categoría compatible con su tipo."
+    },
+    noResults: {
+      title: "No encontramos movimientos",
+      description: "Prueba con otra búsqueda o elimina los filtros aplicados."
+    },
+    loadError: {
+      title: "No pudimos cargar los movimientos",
+      description:
+        "Comprueba tu conexión e inténtalo de nuevo dentro de unos instantes."
+    },
+    feedback: {
+      created: "Movimiento registrado.",
+      updated: "Movimiento actualizado.",
+      paid: "Movimiento confirmado con el importe real.",
+      skip: "Movimiento omitido para este periodo.",
+      cancel: "Movimiento cancelado."
+    },
+    errors: {
+      unavailable:
+        "No pudimos conectar con el servicio. Puedes reintentar sin duplicar el movimiento.",
+      notFound: "El movimiento o la categoría ya no está disponible.",
+      invalidState:
+        "El movimiento cambió de estado y ya no admite esta operación.",
+      idempotencyConflict:
+        "Este intento ya se utilizó con otros datos. Revisa el movimiento antes de volver a enviarlo.",
+      invalid: "Revisa los datos del movimiento e inténtalo de nuevo.",
+      unexpected: "No pudimos completar la operación. Inténtalo de nuevo."
     }
   },
   user: {

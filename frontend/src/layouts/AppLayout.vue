@@ -53,6 +53,20 @@
             <q-item
               clickable
               exact
+              :to="{ name: 'transactions' }"
+              active-class="app-navigation__item--active"
+              @click="closeDrawerOnMobile"
+            >
+              <q-item-section avatar>
+                <q-icon name="receipt_long" />
+              </q-item-section>
+              <q-item-section>{{
+                t("navigation.transactions")
+              }}</q-item-section>
+            </q-item>
+            <q-item
+              clickable
+              exact
               :to="{ name: 'recurring' }"
               active-class="app-navigation__item--active"
               @click="closeDrawerOnMobile"
