@@ -32,6 +32,12 @@ pub enum AppError {
 
     #[error("category name already exists")]
     CategoryNameTaken,
+
+    #[error("invalid transaction state")]
+    InvalidTransactionState,
+
+    #[error("idempotency conflict")]
+    IdempotencyConflict,
 }
 
 #[derive(Debug, Serialize)]
@@ -83,6 +89,18 @@ impl IntoResponse for AppError {
                 StatusCode::CONFLICT,
                 "CATEGORY_NAME_TAKEN",
                 "A category with this name already exists".to_owned(),
+            ),
+
+            Self::InvalidTransactionState => (
+                StatusCode::CONFLICT,
+                "INVALID_TRANSACTION_STATE",
+                "Transaction cannot perform this operation in its current state".to_owned(),
+            ),
+
+            Self::IdempotencyConflict => (
+                StatusCode::CONFLICT,
+                "IDEMPOTENCY_CONFLICT",
+                "Operation identifier was already used for another transaction".to_owned(),
             ),
         };
 

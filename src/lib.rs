@@ -7,6 +7,7 @@ pub mod entities;
 pub mod error;
 pub mod health;
 pub mod recurring;
+pub mod transactions;
 
 use anyhow::Context;
 use std::sync::Arc;
