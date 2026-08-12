@@ -86,6 +86,32 @@ run_migrations() {
         up
 }
 
+ensure_runtime_user() {
+    local runtime_user="omc"
+    local runtime_group="omc"
+
+    if ! getent group "${runtime_group}" >/dev/null; then
+        log "Creating system group ${runtime_group}"
+        sudo groupadd --system "${runtime_group}"
+    fi
+
+    if ! id -u "${runtime_user}" >/dev/null 2>&1; then
+        log "Creating system user ${runtime_user}"
+        sudo useradd \
+            --system \
+            --gid "${runtime_group}" \
+            --home-dir "${BACKEND_ROOT}" \
+            --no-create-home \
+            --shell /usr/sbin/nologin \
+            "${runtime_user}"
+    elif [[ "$(id -gn "${runtime_user}")" != "${runtime_group}" ]]; then
+        log "Assigning ${runtime_user} to primary group ${runtime_group}"
+        sudo usermod --gid "${runtime_group}" "${runtime_user}"
+    fi
+
+    sudo install -d -o "${runtime_user}" -g "${runtime_group}" -m 0755 "${BACKEND_ROOT}"
+}
+
 trap cleanup EXIT
 
 command -v cargo >/dev/null || fail "cargo is not installed"
@@ -131,14 +157,7 @@ cargo build --release --locked -p migration --bin migration
 [[ -x "${MIGRATION_BINARY}" ]] || fail "migration binary was not built"
 
 log "Preparing bare-metal backend runtime"
-if ! id -u omc >/dev/null 2>&1; then
-    sudo useradd \
-        --system \
-        --user-group \
-        --home-dir "${BACKEND_ROOT}" \
-        --shell /usr/sbin/nologin \
-        omc
-fi
+ensure_runtime_user
 
 sudo install -d -o omc -g omc -m 0755 "${BACKEND_RELEASE}" "${BACKEND_RELEASES_DIR}"
 sudo install -o omc -g omc -m 0755 "${BACKEND_BINARY}" "${BACKEND_RELEASE}/oh-my-cash"
