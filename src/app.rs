@@ -5,7 +5,7 @@ use sea_orm::DatabaseConnection;
 use tower_cookies::CookieManagerLayer;
 use tower_http::trace::TraceLayer;
 
-use crate::{auth, config::Config, health};
+use crate::{auth, categories, config::Config, health};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -14,7 +14,9 @@ pub struct AppState {
 }
 
 pub fn create_router(state: AppState) -> Router {
-    let api = Router::new().nest("/auth", auth::router());
+    let api = Router::new()
+        .nest("/auth", auth::router())
+        .merge(categories::router());
 
     Router::new()
         .nest("/api/v1", api)

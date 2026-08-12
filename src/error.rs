@@ -26,6 +26,12 @@ pub enum AppError {
 
     #[error("internal server error")]
     Internal,
+
+    #[error("resource not found")]
+    NotFound,
+
+    #[error("category name already exists")]
+    CategoryNameTaken,
 }
 
 #[derive(Debug, Serialize)]
@@ -66,6 +72,17 @@ impl IntoResponse for AppError {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "INTERNAL_SERVER_ERROR",
                 "Internal server error".to_owned(),
+            ),
+            Self::NotFound => (
+                StatusCode::NOT_FOUND,
+                "NOT_FOUND",
+                "Resource not found".to_owned(),
+            ),
+
+            Self::CategoryNameTaken => (
+                StatusCode::CONFLICT,
+                "CATEGORY_NAME_TAKEN",
+                "A category with this name already exists".to_owned(),
             ),
         };
 
