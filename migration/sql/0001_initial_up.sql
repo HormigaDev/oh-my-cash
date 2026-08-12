@@ -167,18 +167,35 @@ create table recurring_rules (
     constraint recurring_rules_date_range_chk
         check (ends_on is null or ends_on >= starts_on),
 
-    constraint recurring_rules_fixed_amount_chk
+    constraint recurring_rules_amount_shape_chk
         check (
             (
                 amount_mode = 'fixed'
                 and fixed_amount is not null
                 and fixed_amount > 0
+                and estimated_amount is null
+                and min_amount is null
+                and max_amount is null
             )
             or
             (
                 amount_mode = 'variable'
                 and fixed_amount is null
             )
+        ),
+    
+    constraint recurring_rules_estimated_min_chk
+        check (
+            estimated_amount is null
+            or min_amount is null
+            or estimated_amount >= min_amount
+        ),
+    
+    constraint recurring_rules_estimated_max_chk
+        check (
+            estimated_amount is null
+            or max_amount is null
+            or estimated_amount <= max_amount
         ),
 
     constraint recurring_rules_estimated_amount_chk
