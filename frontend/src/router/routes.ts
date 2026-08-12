@@ -2,18 +2,33 @@ import type { RouteRecordRaw } from "vue-router";
 
 const routes: RouteRecordRaw[] = [
   {
+    path: "/login",
+    name: "login",
+    component: () => import("@/pages/LoginPage.vue")
+  },
+  {
     path: "/",
-    component: () => import("@/layouts/MainLayout.vue"),
+    component: () => import("@/layouts/AppLayout.vue"),
+    meta: { requiresAuth: true },
     children: [
-      { path: "", component: () => import("@/pages/IndexPage.vue") },
-      { path: "second", component: () => import("@/pages/SecondPage.vue") }
+      {
+        path: "",
+        redirect: { name: "dashboard" }
+      },
+      {
+        path: "dashboard",
+        name: "dashboard",
+        component: () => import("@/pages/DashboardPage.vue"),
+        meta: {
+          requiresAuth: true,
+          titleKey: "dashboard.title"
+        }
+      }
     ]
   },
-
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: "/:catchAll(.*)*",
+    name: "not-found",
     component: () => import("@/pages/ErrorNotFound.vue")
   }
 ];

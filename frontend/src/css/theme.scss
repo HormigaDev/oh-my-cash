@@ -1,0 +1,85 @@
+:root {
+  --omc-radius-sm: 0.5rem;
+  --omc-radius-md: 0.75rem;
+  --omc-radius-lg: 1rem;
+  --omc-radius-xl: 1.5rem;
+  --omc-shadow-sm: 0 0.125rem 0.5rem var(--omc-color-shadow);
+  --omc-shadow-md: 0 1rem 2.5rem var(--omc-color-shadow);
+  --omc-header-height: 4.5rem;
+  --omc-sidebar-width: 16.5rem;
+  --omc-content-max-width: 76rem;
+}
+
+body.body--light {
+  --omc-color-primary: #0f766e;
+  --omc-color-primary-hover: #115e59;
+  --omc-color-primary-soft: #ccfbf1;
+  --omc-color-accent: #0e7490;
+  --omc-color-background: #f4f7f8;
+  --omc-color-surface: #ffffff;
+  --omc-color-surface-elevated: #ffffff;
+  --omc-color-surface-subtle: #eaf1f2;
+  --omc-color-text: #102a2c;
+  --omc-color-text-secondary: #3f5d60;
+  --omc-color-text-muted: #6b8385;
+  --omc-color-text-on-primary: #ffffff;
+  --omc-color-border: #d6e2e3;
+  --omc-color-divider: #e5edee;
+  --omc-color-positive: #15803d;
+  --omc-color-positive-soft: #dcfce7;
+  --omc-color-negative: #b42318;
+  --omc-color-negative-soft: #fee4e2;
+  --omc-color-warning: #b54708;
+  --omc-color-warning-soft: #fef0c7;
+  --omc-color-info: #0369a1;
+  --omc-color-info-soft: #e0f2fe;
+  --omc-color-shadow: rgba(15, 42, 44, 0.09);
+  --omc-color-focus-ring: rgba(13, 148, 136, 0.32);
+  --omc-color-scrim: rgba(8, 27, 29, 0.45);
+  --omc-color-decoration: rgba(20, 184, 166, 0.12);
+  --q-primary: var(--omc-color-primary);
+  --q-secondary: var(--omc-color-text-secondary);
+  --q-accent: var(--omc-color-accent);
+  --q-positive: var(--omc-color-positive);
+  --q-negative: var(--omc-color-negative);
+  --q-warning: var(--omc-color-warning);
+  --q-info: var(--omc-color-info);
+  color-scheme: light;
+}
+
+body.body--dark {
+  --omc-color-primary: #5eead4;
+  --omc-color-primary-hover: #99f6e4;
+  --omc-color-primary-soft: #163b3a;
+  --omc-color-accent: #67e8f9;
+  --omc-color-background: #0c1719;
+  --omc-color-surface: #132225;
+  --omc-color-surface-elevated: #182a2d;
+  --omc-color-surface-subtle: #1d3033;
+  --omc-color-text: #e7f0f1;
+  --omc-color-text-secondary: #b9c9cb;
+  --omc-color-text-muted: #819799;
+  --omc-color-text-on-primary: #06211f;
+  --omc-color-border: #2b4144;
+  --omc-color-divider: #22373a;
+  --omc-color-positive: #4ade80;
+  --omc-color-positive-soft: #163b2a;
+  --omc-color-negative: #f97066;
+  --omc-color-negative-soft: #422326;
+  --omc-color-warning: #fbbf24;
+  --omc-color-warning-soft: #443417;
+  --omc-color-info: #7dd3fc;
+  --omc-color-info-soft: #17374a;
+  --omc-color-shadow: rgba(0, 0, 0, 0.28);
+  --omc-color-focus-ring: rgba(94, 234, 212, 0.34);
+  --omc-color-scrim: rgba(0, 0, 0, 0.64);
+  --omc-color-decoration: rgba(45, 212, 191, 0.09);
+  --q-primary: var(--omc-color-primary);
+  --q-secondary: var(--omc-color-text-secondary);
+  --q-accent: var(--omc-color-accent);
+  --q-positive: var(--omc-color-positive);
+  --q-negative: var(--omc-color-negative);
+  --q-warning: var(--omc-color-warning);
+  --q-info: var(--omc-color-info);
+  color-scheme: dark;
+}

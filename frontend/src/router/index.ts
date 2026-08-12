@@ -2,35 +2,41 @@ import { defineRouter } from "#q-app";
 import {
   createMemoryHistory,
   createRouter,
-  createWebHashHistory,
-  createWebHistory,
+  createWebHistory
 } from "vue-router";
+
+import { useAuthStore } from "@/features/auth/authStore";
 
 import routes from "./routes";
 
-/*
- * If not building with SSR mode, you can
- * directly export the Router instantiation;
- *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Router instance.
- */
-
-export default defineRouter((/* { store, ssrContext } */) => {
+export default defineRouter(({ store }) => {
   const createHistory = import.meta.env.QUASAR_SERVER
     ? createMemoryHistory
     : createWebHistory;
 
-  const Router = createRouter({
-    scrollBehavior: () => ({ left: 0, top: 0 }),
-    routes,
-
-    // Leave this as is and make changes in quasar.conf.js instead!
-    // quasar.conf.js -> build -> vueRouterMode
-    // quasar.conf.js -> build -> publicPath
+  const router = createRouter({
     history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE),
+    routes,
+    scrollBehavior: () => ({ left: 0, top: 0 })
   });
 
-  return Router;
+  router.beforeEach(async to => {
+    const auth = useAuthStore(store);
+    await auth.bootstrapSession();
+
+    if (to.meta.requiresAuth && !auth.isAuthenticated) {
+      return {
+        name: "login",
+        query: { redirect: to.fullPath }
+      };
+    }
+
+    if (to.name === "login" && auth.isAuthenticated) {
+      return { name: "dashboard" };
+    }
+
+    return true;
+  });
+
+  return router;
 });

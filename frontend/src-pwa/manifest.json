@@ -1,8 +1,15 @@
 {
-  "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#027be3",
-  "display_override": ["fullscreen", "minimal-ui"],
+  "id": "/",
+  "name": "Oh My Cash",
+  "short_name": "OMC",
+  "description": "Finanzas personales claras y bajo control",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "orientation": "any",
+  "background_color": "#f4f7f8",
+  "theme_color": "#0f766e",
+  "display_override": ["window-controls-overlay", "standalone"],
   "display": "standalone",
   "icons": [
     {

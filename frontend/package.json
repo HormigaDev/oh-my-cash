@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.0.1",
   "private": true,
-  "description": "A Quasar Project",
+  "description": "Frontend de Oh My Cash",
   "keywords": [
     "quasar",
     "quasar-app",
@@ -19,6 +19,7 @@
     "lint:check": "oxfmt --check && oxlint",
     "dev": "quasar dev",
     "build": "quasar build",
+    "build:pwa": "quasar build -m pwa",
     "typecheck": "vue-tsc --noEmit",
     "postinstall": "quasar prepare --silent"
   },

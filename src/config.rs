@@ -32,7 +32,7 @@ impl Config {
         };
 
         let bind_addr = env_var("APP_BIND")
-            .unwrap_or_else(|_| "127.0.0.1:8080".to_owned())
+            .unwrap_or_else(|_| "127.0.0.1:8383".to_owned())
             .parse()
             .context("APP_BIND must be a valid socket addres")?;
 
