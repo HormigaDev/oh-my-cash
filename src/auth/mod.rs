@@ -20,5 +20,4 @@ pub fn router() -> Router<AppState> {
         .route("/login", post(handler::login))
         .route("/logout", post(handler::logout))
         .route("/session", get(handler::current_session))
-        .route("/authenticated-test", get(handler::authenticated_test))
 }

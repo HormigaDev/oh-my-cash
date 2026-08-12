@@ -7,8 +7,7 @@ use tower_cookies::{
 use crate::{
     app::AppState,
     auth::{
-        AuthUser,
-        dto::{AuthUserResponse, LoginRequest, SessionResponse},
+        dto::{LoginRequest, SessionResponse},
         service,
     },
     config::Config,
@@ -85,8 +84,4 @@ fn removal_cookie(config: &Config) -> Cookie<'static> {
         .path("/")
         .max_age(CookieDuration::seconds(0))
         .build()
-}
-
-pub async fn authenticated_test(auth: AuthUser) -> Json<AuthUserResponse> {
-    Json(auth.into())
 }
