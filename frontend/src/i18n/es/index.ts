@@ -421,8 +421,7 @@ export default {
       statusHelp: {
         pending:
           "Quedará abierto aunque la fecha ya haya pasado. Podrás confirmar el importe real más adelante.",
-        paid:
-          "Se registrará como realizado con el importe y la fecha indicados."
+        paid: "Se registrará como realizado con el importe y la fecha indicados."
       },
       category: "Categoría",
       categoryRequired: "Selecciona una categoría.",
