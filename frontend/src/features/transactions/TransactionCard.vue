@@ -173,7 +173,8 @@ const { formatMoney, formatDate, formatDateOnly } = useFinancialFormat();
 
 const canEdit = computed(
   () =>
-    props.transaction.status === "paid" &&
+    (props.transaction.status === "paid" ||
+      props.transaction.status === "pending") &&
     props.transaction.recurringRuleId === null
 );
 const canPay = computed(() => props.transaction.status === "pending");

@@ -10,6 +10,7 @@
   --omc-content-max-width: 76rem;
 }
 
+:root[data-omc-theme="light"],
 body.body--light {
   --omc-color-primary: #0f766e;
   --omc-color-primary-hover: #115e59;
@@ -66,6 +67,7 @@ body.body--light {
   color-scheme: light;
 }
 
+:root[data-omc-theme="dark"],
 body.body--dark {
   --omc-color-primary: #5eead4;
   --omc-color-primary-hover: #99f6e4;

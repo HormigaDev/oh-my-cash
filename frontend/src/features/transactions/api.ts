@@ -87,15 +87,19 @@ function parseTransaction(value: unknown): Transaction {
   };
 }
 
-function manualBody(input: ManualTransactionInput) {
-  return {
+function manualBody(input: ManualTransactionInput, includeStatus: boolean) {
+  const base = {
     category_id: input.categoryId,
     direction: input.direction,
+    ...(includeStatus ? { status: input.status } : {}),
     description: input.description,
     amount: input.amount,
-    occurred_at: input.occurredAt,
     notes: input.notes
   };
+
+  return input.status === "pending"
+    ? { ...base, due_date: input.dueDate }
+    : { ...base, occurred_at: input.occurredAt };
 }
 
 export async function listTransactions(month: string) {
@@ -119,7 +123,7 @@ export async function createTransaction(input: CreateTransactionInput) {
     method: "POST",
     body: {
       client_operation_id: input.clientOperationId,
-      ...manualBody(input)
+      ...manualBody(input, true)
     }
   });
 
@@ -132,7 +136,7 @@ export async function updateTransaction(
 ) {
   const response = await apiRequest(`/transactions/${id}`, {
     method: "PATCH",
-    body: manualBody(input)
+    body: manualBody(input, false)
   });
 
   return parseTransaction(response);

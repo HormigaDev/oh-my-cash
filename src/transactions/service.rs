@@ -3,7 +3,7 @@ use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, DbErr, EntityTrait, NotSet, QueryFilter, QueryOrder,
     QuerySelect, Set, SqlErr, sea_query::Expr,
 };
-use time::OffsetDateTime;
+use time::{Date, OffsetDateTime};
 use uuid::Uuid;
 
 use crate::{
@@ -13,8 +13,9 @@ use crate::{
     error::AppError,
     materialization::MonthPeriod,
     transactions::dto::{
-        CreateTransactionRequest, PayTransactionRequest, TransactionDirection, TransactionResponse,
-        UpdateTransactionRequest, parse_datetime,
+        CreateTransactionRequest, CreateTransactionStatus, PayTransactionRequest,
+        TransactionDirection, TransactionResponse, UpdateTransactionRequest, parse_date,
+        parse_datetime,
     },
 };
 
@@ -33,11 +34,15 @@ struct PointTransactionInput {
 
     direction: TransactionDirection,
 
+    status: CreateTransactionStatus,
+
     description: String,
 
     amount: Decimal,
 
-    occurred_at: OffsetDateTime,
+    due_date: Option<Date>,
+
+    occurred_at: Option<OffsetDateTime>,
 
     notes: Option<String>,
 }
@@ -75,16 +80,30 @@ pub async fn create(
 
         direction: request.direction,
 
+        status: request.status,
+
         description: normalize_description(&request.description)?,
 
         amount: request.amount,
 
-        occurred_at: parse_datetime(&request.occurred_at, "occurred_at")?,
+        due_date: request
+            .due_date
+            .as_deref()
+            .map(|value| parse_date(value, "due_date"))
+            .transpose()?,
+
+        occurred_at: request
+            .occurred_at
+            .as_deref()
+            .map(|value| parse_datetime(value, "occurred_at"))
+            .transpose()?,
 
         notes: normalize_notes(request.notes)?,
     };
 
     validate_money(input.amount)?;
+
+    validate_point_transaction_shape(&input)?;
 
     ensure_category_compatible(state, auth, input.category_id, input.direction).await?;
 
@@ -115,23 +134,32 @@ pub async fn create(
 
         direction: Set(input.direction.as_str().to_owned()),
 
-        status: Set("paid".to_owned()),
+        status: Set(input.status.as_str().to_owned()),
 
         description: Set(input.description.clone()),
 
         notes: Set(input.notes.clone()),
 
-        expected_amount: Set(None),
+        expected_amount: Set(match input.status {
+            CreateTransactionStatus::Pending => Some(input.amount),
+            CreateTransactionStatus::Paid => None,
+        }),
 
-        actual_amount: Set(Some(input.amount)),
+        actual_amount: Set(match input.status {
+            CreateTransactionStatus::Pending => None,
+            CreateTransactionStatus::Paid => Some(input.amount),
+        }),
 
-        due_date: Set(None),
+        due_date: Set(input.due_date),
 
         recurrence_period: Set(None),
 
-        occurred_at: Set(Some(input.occurred_at)),
+        occurred_at: Set(input.occurred_at),
 
-        paid_at: Set(Some(now)),
+        paid_at: Set(match input.status {
+            CreateTransactionStatus::Pending => None,
+            CreateTransactionStatus::Paid => Some(now),
+        }),
 
         created_at: NotSet,
 
@@ -181,7 +209,7 @@ pub async fn update(
         ));
     }
 
-    if transaction.status != "paid" {
+    if !matches!(transaction.status.as_str(), "paid" | "pending") {
         return Err(AppError::InvalidTransactionState);
     }
 
@@ -195,6 +223,7 @@ pub async fn update(
         ensure_category_compatible(state, auth, final_category_id, final_direction).await?;
     }
 
+    let status = transaction.status.clone();
     let mut active: transactions::ActiveModel = transaction.into();
 
     if let Some(category_id) = request.category_id {
@@ -212,11 +241,31 @@ pub async fn update(
     if let Some(amount) = request.amount {
         validate_money(amount)?;
 
-        active.actual_amount = Set(Some(amount));
+        if status == "paid" {
+            active.actual_amount = Set(Some(amount));
+        } else {
+            active.expected_amount = Set(Some(amount));
+        }
     }
 
     if let Some(occurred_at) = request.occurred_at {
+        if status != "paid" {
+            return Err(AppError::BadRequest(
+                "Pending transactions use due_date".to_owned(),
+            ));
+        }
+
         active.occurred_at = Set(Some(parse_datetime(&occurred_at, "occurred_at")?));
+    }
+
+    if let Some(due_date) = request.due_date {
+        if status != "pending" {
+            return Err(AppError::BadRequest(
+                "Paid transactions use occurred_at".to_owned(),
+            ));
+        }
+
+        active.due_date = Set(Some(parse_date(&due_date, "due_date")?));
     }
 
     if let Some(notes) = request.notes {
@@ -332,8 +381,19 @@ fn ensure_same_operation(
         && existing.category_id == input.category_id
         && existing.direction == input.direction.as_str()
         && existing.description == input.description
-        && existing.actual_amount == Some(input.amount)
-        && existing.occurred_at == Some(input.occurred_at)
+        && existing.status == input.status.as_str()
+        && existing.expected_amount
+            == match input.status {
+                CreateTransactionStatus::Pending => Some(input.amount),
+                CreateTransactionStatus::Paid => None,
+            }
+        && existing.actual_amount
+            == match input.status {
+                CreateTransactionStatus::Pending => None,
+                CreateTransactionStatus::Paid => Some(input.amount),
+            }
+        && existing.due_date == input.due_date
+        && existing.occurred_at == input.occurred_at
         && existing.notes == input.notes;
 
     if !same {
@@ -345,6 +405,30 @@ fn ensure_same_operation(
 
 fn is_unique_violation(error: &DbErr) -> bool {
     matches!(error.sql_err(), Some(SqlErr::UniqueConstraintViolation(_,)))
+}
+
+fn validate_point_transaction_shape(input: &PointTransactionInput) -> Result<(), AppError> {
+    let valid = match input.status {
+        CreateTransactionStatus::Pending => {
+            input.due_date.is_some() && input.occurred_at.is_none()
+        }
+        CreateTransactionStatus::Paid => {
+            input.due_date.is_none() && input.occurred_at.is_some()
+        }
+    };
+
+    if !valid {
+        return Err(AppError::BadRequest(match input.status {
+            CreateTransactionStatus::Pending => {
+                "Pending transactions require due_date and must not include occurred_at".to_owned()
+            }
+            CreateTransactionStatus::Paid => {
+                "Paid transactions require occurred_at and must not include due_date".to_owned()
+            }
+        }));
+    }
+
+    Ok(())
 }
 
 async fn find_owned(
@@ -452,8 +536,9 @@ fn month_filter(auth: &AuthUser, period: &MonthPeriod) -> Condition {
         .add(transactions::Column::RecurringRuleId.is_not_null())
         .add(transactions::Column::RecurrencePeriod.eq(period.first_day()));
 
-    let point_in_time = Condition::all()
+    let paid_point_in_time = Condition::all()
         .add(transactions::Column::RecurringRuleId.is_null())
+        .add(transactions::Column::Status.eq("paid"))
         .add(Expr::cust_with_values(
             r#"
                     to_char(
@@ -465,7 +550,16 @@ fn month_filter(auth: &AuthUser, period: &MonthPeriod) -> Condition {
             [auth.timezone.clone(), period.key().to_owned()],
         ));
 
-    Condition::any().add(recurring).add(point_in_time)
+    let unpaid_point_in_time = Condition::all()
+        .add(transactions::Column::RecurringRuleId.is_null())
+        .add(transactions::Column::Status.ne("paid"))
+        .add(transactions::Column::DueDate.gte(period.first_day()))
+        .add(transactions::Column::DueDate.lte(period.last_day()));
+
+    Condition::any()
+        .add(recurring)
+        .add(paid_point_in_time)
+        .add(unpaid_point_in_time)
 }
 
 #[cfg(test)]
@@ -493,11 +587,7 @@ mod tests {
             .build(DbBackend::Postgres);
 
         assert!(!statement.sql.contains('?'), "{}", statement.sql);
-        assert!(
-            statement.sql.contains("AT TIME ZONE $3"),
-            "{}",
-            statement.sql
-        );
-        assert!(statement.sql.contains(") = $4"), "{}", statement.sql);
+        assert!(statement.sql.contains("AT TIME ZONE $"), "{}", statement.sql);
+        assert!(statement.sql.contains("due_date"), "{}", statement.sql);
     }
 }

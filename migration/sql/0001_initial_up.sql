@@ -159,7 +159,7 @@ create table recurring_rules (
         check (amount_mode in ('fixed', 'variable')),
 
     constraint recurring_rules_frequency_chk
-        check (frequency in ('frequency')),
+        check (frequency in ('monthly')),
 
     constraint recurring_rules_day_of_month_chk
         check (day_of_month between 1 and 31),
@@ -326,6 +326,8 @@ create table transactions (
             or (
                 actual_amount is null
                 and paid_at is null
+                and occurred_at is null
+                and due_date is not null
             )
         ),
 

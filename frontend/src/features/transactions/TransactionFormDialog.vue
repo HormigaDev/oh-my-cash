@@ -62,6 +62,22 @@
             />
           </fieldset>
 
+          <fieldset class="transaction-form-dialog__fieldset">
+            <legend>{{ t("transactions.form.status") }}</legend>
+            <q-btn-toggle
+              v-model="status"
+              spread
+              no-caps
+              unelevated
+              :options="statusOptions"
+              :disable="saving || transaction !== null"
+              class="transaction-form-dialog__toggle"
+            />
+            <p class="transaction-form-dialog__help">{{
+              t(`transactions.form.statusHelp.${status}`)
+            }}</p>
+          </fieldset>
+
           <q-select
             v-model="categoryId"
             outlined
@@ -117,14 +133,28 @@
               v-model="amount"
               outlined
               inputmode="decimal"
-              :label="t('transactions.form.amount')"
+              :label="
+                t(
+                  status === 'pending'
+                    ? 'transactions.form.expectedAmount'
+                    : 'transactions.form.amount'
+                )
+              "
               :suffix="currency"
               :rules="amountRules"
               :disable="saving"
             >
               <template #prepend><q-icon name="payments" /></template>
             </q-input>
+            <AppDateField
+              v-if="status === 'pending'"
+              v-model="dueDate"
+              :label="t('transactions.form.dueDate')"
+              :rules="dueDateRules"
+              :disable="saving"
+            />
             <AppDateTimeField
+              v-else
               v-model="occurredAt"
               :label="t('transactions.form.occurredAt')"
               :rules="occurredAtRules"
@@ -180,6 +210,7 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQuasar, type QForm } from "quasar";
 
+import AppDateField from "@/components/AppDateField.vue";
 import AppDateTimeField from "@/components/AppDateTimeField.vue";
 import { useAuthStore } from "@/features/auth/authStore";
 import type { Category } from "@/features/categories/types";
@@ -217,10 +248,12 @@ const $q = useQuasar();
 const { t } = useI18n();
 const form = ref<QForm | null>(null);
 const direction = ref<TransactionDirection>("expense");
+const status = ref<"pending" | "paid">("paid");
 const categoryId = ref<string | null>(null);
 const description = ref("");
 const amount = ref("");
 const occurredAt = ref(nowDateTimeInput());
+const dueDate = ref<string | null>(null);
 const notes = ref("");
 
 const currency = computed(() => auth.user?.currency ?? "BRL");
@@ -234,6 +267,18 @@ const directionOptions = computed(() => [
     label: t("transactions.direction.income"),
     value: "income",
     icon: "south_west"
+  }
+]);
+const statusOptions = computed(() => [
+  {
+    label: t("transactions.status.pending"),
+    value: "pending",
+    icon: "schedule"
+  },
+  {
+    label: t("transactions.status.paid"),
+    value: "paid",
+    icon: "task_alt"
   }
 ]);
 const categoryOptions = computed(() =>
@@ -261,6 +306,11 @@ const occurredAtRules = [
   (value: string) =>
     isValidDateTimeInput(value) || t("transactions.form.dateInvalid")
 ];
+const dueDateRules = [
+  (value: string | null) =>
+    (value !== null && /^\d{4}-\d{2}-\d{2}$/u.test(value)) ||
+    t("transactions.form.dueDateInvalid")
+];
 
 watch(direction, () => {
   if (
@@ -277,12 +327,18 @@ watch(
     if (!open) return;
 
     direction.value = transaction?.direction ?? "expense";
+    status.value = transaction?.status === "pending" ? "pending" : "paid";
     categoryId.value = transaction?.categoryId ?? null;
     description.value = transaction?.description ?? "";
-    amount.value = transaction?.actualAmount ?? "";
+    amount.value =
+      transaction?.actualAmount ?? transaction?.expectedAmount ?? "";
     occurredAt.value = transaction?.occurredAt
       ? toDateTimeInput(transaction.occurredAt)
       : (props.initialOccurredAt ?? nowDateTimeInput());
+    dueDate.value =
+      transaction?.dueDate ??
+      props.initialOccurredAt?.slice(0, 10) ??
+      nowDateTimeInput().slice(0, 10);
     notes.value = transaction?.notes ?? "";
     form.value?.resetValidation();
   },
@@ -295,14 +351,24 @@ async function submit() {
   const normalizedAmount = normalizeDecimalInput(amount.value);
   if (normalizedAmount === null) return;
 
-  emit("submit", {
+  const base = {
     categoryId: categoryId.value,
     direction: direction.value,
     description: description.value.trim(),
     amount: normalizedAmount,
-    occurredAt: toRfc3339(occurredAt.value),
     notes: notes.value.trim()
-  });
+  };
+
+  if (status.value === "pending") {
+    if (dueDate.value === null) return;
+    emit("submit", { ...base, status: "pending", dueDate: dueDate.value });
+  } else {
+    emit("submit", {
+      ...base,
+      status: "paid",
+      occurredAt: toRfc3339(occurredAt.value)
+    });
+  }
 }
 </script>
 
@@ -369,6 +435,13 @@ async function submit() {
   color: var(--omc-color-text-secondary);
   font-size: 0.78rem;
   font-weight: 650;
+}
+
+.transaction-form-dialog__help {
+  margin: 0.5rem 0 0;
+  color: var(--omc-color-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
 }
 
 .transaction-form-dialog__toggle {

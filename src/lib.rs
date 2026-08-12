@@ -2,6 +2,7 @@ pub mod app;
 pub mod auth;
 pub mod categories;
 pub mod config;
+pub mod dashboard;
 pub mod db;
 pub mod entities;
 pub mod error;

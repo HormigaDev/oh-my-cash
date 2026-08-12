@@ -19,18 +19,27 @@ export interface Transaction {
   paidAt: string | null;
 }
 
-export interface ManualTransactionInput {
+interface ManualTransactionBase {
   categoryId: string;
   direction: TransactionDirection;
   description: string;
   amount: string;
-  occurredAt: string;
   notes: string;
 }
 
-export interface CreateTransactionInput extends ManualTransactionInput {
+export type ManualTransactionInput =
+  | (ManualTransactionBase & {
+      status: "pending";
+      dueDate: string;
+    })
+  | (ManualTransactionBase & {
+      status: "paid";
+      occurredAt: string;
+    });
+
+export type CreateTransactionInput = ManualTransactionInput & {
   clientOperationId: string;
-}
+};
 
 export interface PayTransactionInput {
   amount: string;

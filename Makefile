@@ -6,3 +6,6 @@ user:
 
 dev:
 	cargo run --bin oh-my-cash
+
+pwa:
+	cd frontend && pnpm dev

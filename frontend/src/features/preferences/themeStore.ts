@@ -28,6 +28,7 @@ export const useThemeStore = defineStore("theme", () => {
       preference.value === "dark" ||
       (preference.value === "system" && mediaQuery?.matches === true);
 
+    document.documentElement.dataset.omcTheme = dark ? "dark" : "light";
     Dark.set(dark);
   }
 

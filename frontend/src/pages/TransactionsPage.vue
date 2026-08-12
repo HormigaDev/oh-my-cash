@@ -170,7 +170,7 @@
             t(
               categories.length === 0
                 ? "transactions.empty.noCategoriesTitle"
-                : "transactions.empty.title",
+                : "transactions.empty.title"
             )
           }}
         </h2>
@@ -179,7 +179,7 @@
             t(
               categories.length === 0
                 ? "transactions.empty.noCategoriesDescription"
-                : "transactions.empty.description",
+                : "transactions.empty.description"
             )
           }}
         </p>
@@ -193,7 +193,7 @@
             t(
               categories.length === 0
                 ? 'transactions.actions.manageCategories'
-                : 'transactions.actions.createFirst',
+                : 'transactions.actions.createFirst'
             )
           "
           @click="categories.length > 0 && openCreateDialog()"
@@ -270,7 +270,7 @@
             <p>
               {{
                 t(`transactions.${transitionAction}.description`, {
-                  name: transitioningTransaction?.description ?? "",
+                  name: transitioningTransaction?.description ?? ""
                 })
               }}
             </p>
@@ -320,20 +320,20 @@ import {
   listTransactions,
   payTransaction,
   skipTransaction,
-  updateTransaction,
+  updateTransaction
 } from "@/features/transactions/api";
 import type {
   ManualTransactionInput,
   PayTransactionInput,
   Transaction,
-  TransactionStatus,
+  TransactionStatus
 } from "@/features/transactions/types";
 import {
   currentMonth,
   dateTimeInputForMonth,
   formatMonth,
   isValidMonth,
-  shiftMonth,
+  shiftMonth
 } from "@/features/transactions/month";
 import { isApiError } from "@/lib/api/errors";
 
@@ -375,26 +375,25 @@ const statusOptions = computed(() => [
   { label: t("transactions.status.pending"), value: "pending" },
   { label: t("transactions.status.paid"), value: "paid" },
   { label: t("transactions.status.skipped"), value: "skipped" },
-  { label: t("transactions.status.cancelled"), value: "cancelled" },
+  { label: t("transactions.status.cancelled"), value: "cancelled" }
 ]);
 const selectedMonthLabel = computed(() =>
-  formatMonth(selectedMonth.value, locale.value),
+  formatMonth(selectedMonth.value, locale.value)
 );
 const initialOccurredAt = computed(() =>
-  dateTimeInputForMonth(selectedMonth.value, thisMonth),
+  dateTimeInputForMonth(selectedMonth.value, thisMonth)
 );
 const statusCounts = computed(() => ({
   pending: transactions.value.filter(
-    (transaction) => transaction.status === "pending",
+    transaction => transaction.status === "pending"
   ).length,
-  paid: transactions.value.filter(
-    (transaction) => transaction.status === "paid",
-  ).length,
+  paid: transactions.value.filter(transaction => transaction.status === "paid")
+    .length
 }));
 const filteredTransactions = computed(() => {
   const query = search.value.trim().toLocaleLowerCase("es");
 
-  return transactions.value.filter((transaction) => {
+  return transactions.value.filter(transaction => {
     const category = categoryById(transaction.categoryId);
     return (
       (statusFilter.value === "all" ||
@@ -408,7 +407,7 @@ const filteredTransactions = computed(() => {
 });
 
 function categoryById(id: string) {
-  return categories.value.find((category) => category.id === id) ?? null;
+  return categories.value.find(category => category.id === id) ?? null;
 }
 
 async function redirectExpiredSession(error: unknown) {
@@ -496,12 +495,12 @@ function operationIdFor(input: ManualTransactionInput) {
 
 function replaceTransaction(saved: Transaction) {
   const index = transactions.value.findIndex(
-    (transaction) => transaction.id === saved.id,
+    transaction => transaction.id === saved.id
   );
   if (index === -1) transactions.value = [saved, ...transactions.value];
   else
-    transactions.value = transactions.value.map((transaction) =>
-      transaction.id === saved.id ? saved : transaction,
+    transactions.value = transactions.value.map(transaction =>
+      transaction.id === saved.id ? saved : transaction
     );
 }
 
@@ -517,7 +516,7 @@ async function saveTransaction(input: ManualTransactionInput) {
     } else {
       await createTransaction({
         ...input,
-        clientOperationId: operationIdFor(input),
+        clientOperationId: operationIdFor(input)
       });
     }
     await loadTransactions();
@@ -528,8 +527,8 @@ async function saveTransaction(input: ManualTransactionInput) {
       message: t(
         editing
           ? "transactions.feedback.updated"
-          : "transactions.feedback.created",
-      ),
+          : "transactions.feedback.created"
+      )
     });
   } catch (error) {
     if (!(await redirectExpiredSession(error)))
@@ -564,7 +563,7 @@ async function confirmPayment(input: PayTransactionInput) {
 
 function openTransitionDialog(
   action: TransitionAction,
-  transaction: Transaction,
+  transaction: Transaction
 ) {
   transitionAction.value = action;
   transitioningTransaction.value = transaction;
@@ -584,7 +583,7 @@ async function confirmTransition() {
     transitionOpen.value = false;
     $q.notify({
       type: "positive",
-      message: t(`transactions.feedback.${transitionAction.value}`),
+      message: t(`transactions.feedback.${transitionAction.value}`)
     });
   } catch (error) {
     if (!(await redirectExpiredSession(error))) {

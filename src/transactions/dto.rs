@@ -53,6 +53,22 @@ pub enum TransactionStatus {
     Cancelled,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum CreateTransactionStatus {
+    Pending,
+    Paid,
+}
+
+impl CreateTransactionStatus {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Pending => "pending",
+            Self::Paid => "paid",
+        }
+    }
+}
+
 impl TryFrom<&str> for TransactionStatus {
     type Error = AppError;
 
@@ -79,12 +95,18 @@ pub struct CreateTransactionRequest {
 
     pub direction: TransactionDirection,
 
+    pub status: CreateTransactionStatus,
+
     pub description: String,
 
     #[serde(with = "rust_decimal::serde::str")]
     pub amount: Decimal,
 
-    pub occurred_at: String,
+    #[serde(default)]
+    pub due_date: Option<String>,
+
+    #[serde(default)]
+    pub occurred_at: Option<String>,
 
     #[serde(default)]
     pub notes: Option<String>,
@@ -108,6 +130,9 @@ pub struct UpdateTransactionRequest {
     pub occurred_at: Option<String>,
 
     #[serde(default)]
+    pub due_date: Option<String>,
+
+    #[serde(default)]
     pub notes: Option<String>,
 }
 
@@ -118,6 +143,7 @@ impl UpdateTransactionRequest {
             && self.description.is_none()
             && self.amount.is_none()
             && self.occurred_at.is_none()
+            && self.due_date.is_none()
             && self.notes.is_none()
     }
 }
@@ -203,6 +229,11 @@ impl TryFrom<transactions::Model> for TransactionResponse {
 pub fn parse_datetime(value: &str, field: &str) -> Result<OffsetDateTime, AppError> {
     OffsetDateTime::parse(value, &Rfc3339)
         .map_err(|_| AppError::BadRequest(format!("{field} must use RFC3339")))
+}
+
+pub fn parse_date(value: &str, field: &str) -> Result<Date, AppError> {
+    Date::parse(value, &Iso8601::DATE)
+        .map_err(|_| AppError::BadRequest(format!("{field} must use YYYY-MM-DD")))
 }
 
 fn format_optional_date(value: Option<Date>) -> Result<Option<String>, AppError> {
