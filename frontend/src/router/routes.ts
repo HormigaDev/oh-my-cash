@@ -50,6 +50,15 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true,
           titleKey: "recurring.title"
         }
+      },
+      {
+        path: "account",
+        name: "account",
+        component: () => import("@/pages/AccountPage.vue"),
+        meta: {
+          requiresAuth: true,
+          titleKey: "account.title"
+        }
       }
     ]
   },

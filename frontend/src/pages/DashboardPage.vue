@@ -14,11 +14,11 @@
             icon="chevron_left"
             :disable="loading"
             :aria-label="t('dashboard.month.previous')"
-            @click="changeMonth(-1)"
+            @click="changeRange(-1)"
           />
           <div>
             <span>{{ t("dashboard.month.eyebrow") }}</span>
-            <strong>{{ monthLabel }}</strong>
+            <strong>{{ periodLabel }}</strong>
           </div>
           <q-btn
             flat
@@ -27,14 +27,21 @@
             icon="chevron_right"
             :disable="loading"
             :aria-label="t('dashboard.month.next')"
-            @click="changeMonth(1)"
+            @click="changeRange(1)"
           />
           <AppMonthField
-            v-model="month"
+            v-model="startMonth"
             class="dashboard-period__picker"
-            :label="t('dashboard.month.choose')"
+            :label="t('dashboard.month.start')"
             :disable="loading"
-            @update:model-value="loadDashboard"
+            @update:model-value="normalizeRange('start')"
+          />
+          <AppMonthField
+            v-model="endMonth"
+            class="dashboard-period__picker"
+            :label="t('dashboard.month.end')"
+            :disable="loading"
+            @update:model-value="normalizeRange('end')"
           />
         </div>
       </AppPageHeader>
@@ -47,7 +54,7 @@
       >
         <div class="dashboard-summary">
           <q-card
-            v-for="index in 4"
+            v-for="index in 6"
             :key="index"
             flat
             class="dashboard-metric dashboard-metric--skeleton"
@@ -303,7 +310,7 @@ import { decimalToNumber } from "@/features/recurring/money";
 import type { TransactionDirection } from "@/features/recurring/types";
 import {
   currentMonth,
-  formatMonth,
+  formatMonthRange,
   shiftMonth
 } from "@/features/transactions/month";
 import { isApiError } from "@/lib/api/errors";
@@ -316,7 +323,9 @@ const router = useRouter();
 const { t } = useI18n();
 const { locale } = useAppLocale();
 const { formatMoney, formatDate, formatDateOnly } = useFinancialFormat();
-const month = ref(currentMonth(auth.user?.timezone ?? "America/Sao_Paulo"));
+const initialMonth = currentMonth(auth.user?.timezone ?? "America/Sao_Paulo");
+const startMonth = ref(initialMonth);
+const endMonth = ref(initialMonth);
 const dashboard = ref<Dashboard | null>(null);
 const loadStatus = ref<LoadStatus>("loading");
 let loadSequence = 0;
@@ -326,7 +335,9 @@ const firstName = computed(() => {
   const identity = auth.user?.displayName?.trim() || auth.user?.email || "";
   return identity.split(/[\s@]/u)[0] || identity;
 });
-const monthLabel = computed(() => formatMonth(month.value, locale.value));
+const periodLabel = computed(() =>
+  formatMonthRange(startMonth.value, endMonth.value, locale.value)
+);
 const unestimatedCount = computed(() =>
   dashboard.value
     ? dashboard.value.summary.pendingIncomeWithoutEstimate +
@@ -359,6 +370,27 @@ const metrics = computed(() => {
   if (!dashboard.value) return [];
   const summary = dashboard.value.summary;
   return [
+    {
+      label: t("dashboard.metrics.globalBalance"),
+      icon: "savings",
+      value: money(summary.globalBalance),
+      caption: t("dashboard.metrics.globalBalanceCaption"),
+      className: summary.globalBalance.startsWith("-")
+        ? "dashboard-metric--negative"
+        : "dashboard-metric--primary"
+    },
+    {
+      label: t("dashboard.metrics.globalProjectedBalance"),
+      icon: "query_stats",
+      value: money(summary.globalProjectedBalance),
+      caption: summary.globalProjectionComplete
+        ? t("dashboard.metrics.globalProjectedBalanceCaption")
+        : t("dashboard.metrics.incomplete"),
+      className:
+        summary.globalProjectedBalance.startsWith("-")
+          ? "dashboard-metric--negative"
+          : "dashboard-metric--info"
+    },
     {
       label: t("dashboard.metrics.realBalance"),
       icon: "account_balance_wallet",
@@ -422,7 +454,7 @@ async function loadDashboard() {
   const sequence = ++loadSequence;
   loadStatus.value = "loading";
   try {
-    const result = await fetchDashboard(month.value);
+    const result = await fetchDashboard(startMonth.value, endMonth.value);
     if (sequence !== loadSequence) return;
     dashboard.value = result;
     loadStatus.value = "ready";
@@ -432,8 +464,17 @@ async function loadDashboard() {
   }
 }
 
-function changeMonth(offset: number) {
-  month.value = shiftMonth(month.value, offset);
+function changeRange(offset: number) {
+  startMonth.value = shiftMonth(startMonth.value, offset);
+  endMonth.value = shiftMonth(endMonth.value, offset);
+  void loadDashboard();
+}
+
+function normalizeRange(changed: "start" | "end") {
+  if (startMonth.value > endMonth.value) {
+    if (changed === "start") endMonth.value = startMonth.value;
+    else startMonth.value = endMonth.value;
+  }
   void loadDashboard();
 }
 
@@ -712,7 +753,7 @@ onMounted(() => void loadDashboard());
 }
 @media (min-width: 75rem) {
   .dashboard-summary {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1rem;
   }
   .dashboard-metric {

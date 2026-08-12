@@ -21,13 +21,26 @@ pub async fn get(
 
     Query(query): Query<DashboardQuery>,
 ) -> Result<Json<DashboardResponse>, AppError> {
-    let month = query
-        .month
-        .ok_or_else(|| AppError::BadRequest("month is required".to_owned()))?;
+    let (start, end) = match (query.start_month, query.end_month, query.month) {
+        (Some(start), Some(end), _) => (MonthPeriod::parse(&start)?, MonthPeriod::parse(&end)?),
+        (None, None, Some(month)) => {
+            let period = MonthPeriod::parse(&month)?;
+            (period.clone(), period)
+        }
+        _ => {
+            return Err(AppError::BadRequest(
+                "start_month and end_month are required".to_owned(),
+            ));
+        }
+    };
 
-    let period = MonthPeriod::parse(&month)?;
+    if start.first_day() > end.first_day() {
+        return Err(AppError::BadRequest(
+            "start_month cannot be after end_month".to_owned(),
+        ));
+    }
 
-    let dashboard = service::get_dashboard(&state, &auth, &period).await?;
+    let dashboard = service::get_dashboard(&state, &auth, &start, &end).await?;
 
     Ok(Json(dashboard))
 }

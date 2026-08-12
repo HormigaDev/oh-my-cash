@@ -26,6 +26,8 @@ create table users (
     currency varchar(3) not null default 'BRL',
     timezone text not null default 'America/Sao_Paulo',
     locale text not null default 'es-ES',
+    theme text not null default 'aurora',
+    theme_mode text not null default 'system',
 
     is_active boolean not null default true,
 
@@ -42,7 +44,19 @@ create table users (
         check (length(btrim(email)) > 0),
 
     constraint users_currency_chk
-        check (currency ~ '^[A-Z]{3}$')
+        check (currency ~ '^[A-Z]{3}$'),
+
+    constraint users_theme_chk
+        check (
+            theme in (
+                'aurora', 'ocean', 'royal', 'orchid', 'rose',
+                'sunset', 'forest', 'graphite', 'coral', 'nord',
+                'contrast-light', 'contrast-dark'
+            )
+        ),
+
+    constraint users_theme_mode_chk
+        check (theme_mode in ('system', 'light', 'dark'))
 );
 
 create unique index users_email_uq on users (email);

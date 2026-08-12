@@ -66,6 +66,11 @@ export function formatMonth(value: string, locale: string) {
   }
 }
 
+export function formatMonthRange(start: string, end: string, locale: string) {
+  if (start === end) return formatMonth(start, locale);
+  return `${formatMonth(start, locale)} – ${formatMonth(end, locale)}`;
+}
+
 export function dateTimeInputForMonth(value: string, current: string) {
   return value === current ? null : `${value}-01T12:00`;
 }

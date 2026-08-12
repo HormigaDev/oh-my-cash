@@ -44,6 +44,14 @@ struct SummaryRow {
 }
 
 #[derive(Debug, FromQueryResult)]
+struct GlobalBalanceRow {
+    global_balance: Decimal,
+    pending_income: Decimal,
+    pending_expenses: Decimal,
+    pending_without_estimate: i64,
+}
+
+#[derive(Debug, FromQueryResult)]
 struct CategoryRow {
     category_id: Uuid,
 
@@ -115,9 +123,17 @@ struct ActivityRow {
 pub async fn get_dashboard(
     state: &AppState,
     auth: &AuthUser,
-    period: &MonthPeriod,
+    start: &MonthPeriod,
+    end: &MonthPeriod,
 ) -> Result<DashboardResponse, AppError> {
-    materialize_month(state, auth, period).await?;
+    let mut period = start.clone();
+    loop {
+        materialize_month(state, auth, &period).await?;
+        if period == *end {
+            break;
+        }
+        period = period.next()?;
+    }
 
     let transaction = state
         .db
@@ -127,21 +143,27 @@ pub async fn get_dashboard(
         )
         .await?;
 
-    let summary_row = load_summary(&transaction, auth, period).await?;
+    let summary_row = load_summary(&transaction, auth, start, end).await?;
 
-    let summary = build_summary(summary_row)?;
+    let global = load_global_balance(&transaction, auth).await?;
+
+    let summary = build_summary(summary_row, global)?;
 
     let spending_by_category =
-        load_categories(&transaction, auth, period, summary.expenses_paid).await?;
+        load_categories(&transaction, auth, start, end, summary.expenses_paid).await?;
 
-    let pending = load_pending(&transaction, auth, period).await?;
+    let pending = load_pending(&transaction, auth, start, end).await?;
 
-    let recent_activity = load_activity(&transaction, auth, period).await?;
+    let recent_activity = load_activity(&transaction, auth, start, end).await?;
 
     transaction.commit().await?;
 
     Ok(DashboardResponse {
-        month: period.key().to_owned(),
+        month: start.key().to_owned(),
+
+        start_month: start.key().to_owned(),
+
+        end_month: end.key().to_owned(),
 
         currency: auth.currency.clone(),
 
@@ -158,11 +180,14 @@ pub async fn get_dashboard(
 async fn load_summary(
     db: &DatabaseTransaction,
     auth: &AuthUser,
-    period: &MonthPeriod,
+    start: &MonthPeriod,
+    end: &MonthPeriod,
 ) -> Result<SummaryRow, AppError> {
     let user_id = auth.id;
 
-    let period_start = period.first_day();
+    let range_start = start.first_day();
+
+    let range_end = end.next()?.first_day();
 
     let timezone = auth.timezone.clone();
 
@@ -177,34 +202,29 @@ async fn load_summary(
                         AND (
                             (
                                 t.recurring_rule_id IS NOT NULL
-                                AND t.recurrence_period = {period_start}
+                                AND t.recurrence_period >= {range_start}
+                                AND t.recurrence_period < {range_end}
                             )
                             OR
                             (
                                 t.recurring_rule_id IS NULL
                                 AND (
                                     (
-                                        t.status = 'paid'
+                                        t.due_date IS NULL
                                         AND t.occurred_at >= (
-                                            {period_start}::date::timestamp
+                                            {range_start}::date::timestamp
                                             AT TIME ZONE {timezone}
                                         )
                                         AND t.occurred_at < (
-                                            (
-                                                {period_start}::date
-                                                + INTERVAL '1 month'
-                                            )::timestamp
+                                            {range_end}::date::timestamp
                                             AT TIME ZONE {timezone}
                                         )
                                     )
                                     OR
                                     (
-                                        t.status <> 'paid'
-                                        AND t.due_date >= {period_start}
-                                        AND t.due_date < (
-                                            {period_start}::date
-                                            + INTERVAL '1 month'
-                                        )
+                                        t.due_date IS NOT NULL
+                                        AND t.due_date >= {range_start}
+                                        AND t.due_date < {range_end}
                                     )
                                 )
                             )
@@ -309,7 +329,44 @@ async fn load_summary(
     Ok(row)
 }
 
-fn build_summary(row: SummaryRow) -> Result<DashboardSummary, AppError> {
+async fn load_global_balance(
+    db: &DatabaseTransaction,
+    auth: &AuthUser,
+) -> Result<GlobalBalanceRow, AppError> {
+    let user_id = auth.id;
+    let row = GlobalBalanceRow::find_by_statement(raw_sql!(
+        Postgres,
+        r#"
+            SELECT COALESCE(
+                SUM(
+                    CASE
+                        WHEN direction = 'income' THEN actual_amount
+                        ELSE -actual_amount
+                    END
+                ) FILTER (WHERE status = 'paid'),
+                0
+            ) AS global_balance,
+            COALESCE(SUM(expected_amount) FILTER (
+                WHERE status = 'pending' AND direction = 'income'
+            ), 0) AS pending_income,
+            COALESCE(SUM(expected_amount) FILTER (
+                WHERE status = 'pending' AND direction = 'expense'
+            ), 0) AS pending_expenses,
+            COUNT(*) FILTER (
+                WHERE status = 'pending' AND expected_amount IS NULL
+            ) AS pending_without_estimate
+            FROM transactions
+            WHERE user_id = {user_id}
+        "#
+    ))
+    .one(db)
+    .await?
+    .ok_or(AppError::Internal)?;
+
+    Ok(row)
+}
+
+fn build_summary(row: SummaryRow, global: GlobalBalanceRow) -> Result<DashboardSummary, AppError> {
     let real_balance = row.income_received - row.expenses_paid;
 
     let projected_income = row.income_received + row.pending_income;
@@ -330,6 +387,13 @@ fn build_summary(row: SummaryRow) -> Result<DashboardSummary, AppError> {
     };
 
     Ok(DashboardSummary {
+        global_balance: global.global_balance,
+
+        global_projected_balance: global.global_balance + global.pending_income
+            - global.pending_expenses,
+
+        global_projection_complete: global.pending_without_estimate == 0,
+
         income_received: row.income_received,
 
         expenses_paid: row.expenses_paid,
@@ -377,12 +441,15 @@ fn savings_rate(balance: Decimal, income: Decimal) -> Option<Decimal> {
 async fn load_categories(
     db: &DatabaseTransaction,
     auth: &AuthUser,
-    period: &MonthPeriod,
+    start: &MonthPeriod,
+    end: &MonthPeriod,
     expenses_paid: Decimal,
 ) -> Result<Vec<CategorySpending>, AppError> {
     let user_id = auth.id;
 
-    let period_start = period.first_day();
+    let range_start = start.first_day();
+
+    let range_end = end.next()?.first_day();
 
     let timezone = auth.timezone.clone();
 
@@ -397,34 +464,29 @@ async fn load_categories(
                         AND (
                             (
                                 t.recurring_rule_id IS NOT NULL
-                                AND t.recurrence_period = {period_start}
+                                AND t.recurrence_period >= {range_start}
+                                AND t.recurrence_period < {range_end}
                             )
                             OR
                             (
                                 t.recurring_rule_id IS NULL
                                 AND (
                                     (
-                                        t.status = 'paid'
+                                        t.due_date IS NULL
                                         AND t.occurred_at >= (
-                                            {period_start}::date::timestamp
+                                            {range_start}::date::timestamp
                                             AT TIME ZONE {timezone}
                                         )
                                         AND t.occurred_at < (
-                                            (
-                                                {period_start}::date
-                                                + INTERVAL '1 month'
-                                            )::timestamp
+                                            {range_end}::date::timestamp
                                             AT TIME ZONE {timezone}
                                         )
                                     )
                                     OR
                                     (
-                                        t.status <> 'paid'
-                                        AND t.due_date >= {period_start}
-                                        AND t.due_date < (
-                                            {period_start}::date
-                                            + INTERVAL '1 month'
-                                        )
+                                        t.due_date IS NOT NULL
+                                        AND t.due_date >= {range_start}
+                                        AND t.due_date < {range_end}
                                     )
                                 )
                             )
@@ -536,11 +598,14 @@ async fn load_categories(
 async fn load_pending(
     db: &DatabaseTransaction,
     auth: &AuthUser,
-    period: &MonthPeriod,
+    start: &MonthPeriod,
+    end: &MonthPeriod,
 ) -> Result<Vec<PendingItem>, AppError> {
     let user_id = auth.id;
 
-    let period_start = period.first_day();
+    let range_start = start.first_day();
+
+    let range_end = end.next()?.first_day();
 
     let timezone = auth.timezone.clone();
 
@@ -555,34 +620,29 @@ async fn load_pending(
                         AND (
                             (
                                 t.recurring_rule_id IS NOT NULL
-                                AND t.recurrence_period = {period_start}
+                                AND t.recurrence_period >= {range_start}
+                                AND t.recurrence_period < {range_end}
                             )
                             OR
                             (
                                 t.recurring_rule_id IS NULL
                                 AND (
                                     (
-                                        t.status = 'paid'
+                                        t.due_date IS NULL
                                         AND t.occurred_at >= (
-                                            {period_start}::date::timestamp
+                                            {range_start}::date::timestamp
                                             AT TIME ZONE {timezone}
                                         )
                                         AND t.occurred_at < (
-                                            (
-                                                {period_start}::date
-                                                + INTERVAL '1 month'
-                                            )::timestamp
+                                            {range_end}::date::timestamp
                                             AT TIME ZONE {timezone}
                                         )
                                     )
                                     OR
                                     (
-                                        t.status <> 'paid'
-                                        AND t.due_date >= {period_start}
-                                        AND t.due_date < (
-                                            {period_start}::date
-                                            + INTERVAL '1 month'
-                                        )
+                                        t.due_date IS NOT NULL
+                                        AND t.due_date >= {range_start}
+                                        AND t.due_date < {range_end}
                                     )
                                 )
                             )
@@ -672,11 +732,14 @@ fn pending_response(row: PendingRow) -> Result<PendingItem, AppError> {
 async fn load_activity(
     db: &DatabaseTransaction,
     auth: &AuthUser,
-    period: &MonthPeriod,
+    start: &MonthPeriod,
+    end: &MonthPeriod,
 ) -> Result<Vec<ActivityItem>, AppError> {
     let user_id = auth.id;
 
-    let period_start = period.first_day();
+    let range_start = start.first_day();
+
+    let range_end = end.next()?.first_day();
 
     let timezone = auth.timezone.clone();
 
@@ -691,34 +754,29 @@ async fn load_activity(
                         AND (
                             (
                                 t.recurring_rule_id IS NOT NULL
-                                AND t.recurrence_period = {period_start}
+                                AND t.recurrence_period >= {range_start}
+                                AND t.recurrence_period < {range_end}
                             )
                             OR
                             (
                                 t.recurring_rule_id IS NULL
                                 AND (
                                     (
-                                        t.status = 'paid'
+                                        t.due_date IS NULL
                                         AND t.occurred_at >= (
-                                            {period_start}::date::timestamp
+                                            {range_start}::date::timestamp
                                             AT TIME ZONE {timezone}
                                         )
                                         AND t.occurred_at < (
-                                            (
-                                                {period_start}::date
-                                                + INTERVAL '1 month'
-                                            )::timestamp
+                                            {range_end}::date::timestamp
                                             AT TIME ZONE {timezone}
                                         )
                                     )
                                     OR
                                     (
-                                        t.status <> 'paid'
-                                        AND t.due_date >= {period_start}
-                                        AND t.due_date < (
-                                            {period_start}::date
-                                            + INTERVAL '1 month'
-                                        )
+                                        t.due_date IS NOT NULL
+                                        AND t.due_date >= {range_start}
+                                        AND t.due_date < {range_end}
                                     )
                                 )
                             )

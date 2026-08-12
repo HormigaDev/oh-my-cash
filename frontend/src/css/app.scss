@@ -23,6 +23,11 @@ body {
   scrollbar-width: thin;
 }
 
+:focus-visible {
+  outline: 0.1875rem solid var(--omc-color-focus-ring);
+  outline-offset: 0.125rem;
+}
+
 html,
 body,
 body * {

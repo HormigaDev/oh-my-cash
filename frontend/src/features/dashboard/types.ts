@@ -9,6 +9,9 @@ export interface DashboardCategory {
 }
 
 export interface DashboardSummary {
+  globalBalance: string;
+  globalProjectedBalance: string;
+  globalProjectionComplete: boolean;
   incomeReceived: string;
   expensesPaid: string;
   realBalance: string;
@@ -62,6 +65,8 @@ export interface DashboardActivityItem {
 
 export interface Dashboard {
   month: string;
+  startMonth: string;
+  endMonth: string;
   currency: string;
   summary: DashboardSummary;
   spendingByCategory: CategorySpending[];

@@ -17,10 +17,30 @@ export default {
   },
   theme: {
     title: "Apariencia",
+    palette: "Tema de color",
+    mode: "Modo de luminosidad",
     current: "Apariencia: {theme}",
     light: "Claro",
     dark: "Oscuro",
-    system: "Sistema"
+    system: "Sistema",
+    contrastModeHint:
+      "Los temas de alto contraste fijan su luminosidad para preservar la máxima legibilidad.",
+    saveError:
+      "La apariencia cambió en este dispositivo, pero no pudimos guardarla en tu cuenta.",
+    names: {
+      aurora: "Aurora",
+      ocean: "Océano",
+      royal: "Royal",
+      orchid: "Orquídea",
+      rose: "Rosa",
+      sunset: "Atardecer",
+      forest: "Bosque",
+      graphite: "Grafito",
+      coral: "Coral",
+      nord: "Nord",
+      "contrast-light": "Contraste claro",
+      "contrast-dark": "Contraste oscuro"
+    }
   },
   auth: {
     login: {
@@ -50,7 +70,8 @@ export default {
     dashboard: "Dashboard",
     transactions: "Movimientos",
     recurring: "Reglas",
-    categories: "Categorías"
+    categories: "Categorías",
+    account: "Mi cuenta"
   },
   dashboard: {
     title: "Dashboard",
@@ -59,6 +80,11 @@ export default {
     summaryLabel: "Resumen financiero",
     metrics: {
       realBalance: "Balance real",
+      globalBalance: "Balance global",
+      globalBalanceCaption: "Acumulado de todos los movimientos pagados",
+      globalProjectedBalance: "Balance global proyectado",
+      globalProjectedBalanceCaption:
+        "Balance acumulado al confirmar todos los movimientos pendientes estimados",
       incomeReceived: "Ingresos recibidos",
       expensesPaid: "Gastos pagados",
       projectedBalance: "Balance proyectado",
@@ -70,6 +96,8 @@ export default {
     month: {
       eyebrow: "Periodo",
       choose: "Seleccionar mes",
+      start: "Mes inicial",
+      end: "Mes final",
       previous: "Mes anterior",
       next: "Mes siguiente"
     },
@@ -87,8 +115,8 @@ export default {
     },
     charts: {
       cashFlow: {
-        title: "Flujo del mes",
-        description: "Importes realizados frente al cierre proyectado.",
+        title: "Flujo del periodo",
+        description: "Importes realizados frente al cierre proyectado del rango.",
         label: "Comparación de ingresos y gastos reales y proyectados",
         income: "Ingresos",
         expenses: "Gastos",
@@ -391,6 +419,8 @@ export default {
       label: "Periodo de movimientos",
       eyebrow: "Periodo",
       choose: "Seleccionar mes",
+      start: "Mes inicial",
+      end: "Mes final",
       previous: "Mes anterior",
       next: "Mes siguiente",
       current: "Volver al mes actual"
@@ -403,7 +433,10 @@ export default {
       label: "Resumen de movimientos",
       pending: "Pendientes",
       paid: "Pagados",
-      total: "Total"
+      total: "Total",
+      income: "Ingresos pagados",
+      expenses: "Gastos pagados",
+      balance: "Balance del periodo"
     },
     filters: {
       label: "Buscar y filtrar movimientos",
@@ -501,8 +534,52 @@ export default {
   },
   user: {
     account: "Cuenta",
+    manageAccount: "Gestionar cuenta",
     signedInAs: "Sesión iniciada como",
     logoutFailed: "No pudimos cerrar tu sesión. Inténtalo de nuevo."
+  },
+  account: {
+    title: "Mi cuenta",
+    subtitle: "Actualiza tu identidad, seguridad y preferencias de la aplicación.",
+    profile: {
+      title: "Perfil y preferencias",
+      description: "Información utilizada para personalizar y presentar tus finanzas.",
+      name: "Nombre",
+      email: "Correo electrónico",
+      save: "Guardar perfil"
+    },
+    preferences: {
+      currency: "Moneda",
+      language: "Idioma",
+      timezone: "Zona horaria"
+    },
+    appearance: {
+      title: "Apariencia",
+      description: "Elige cómo quieres ver Oh My Cash."
+    },
+    security: {
+      title: "Seguridad",
+      description: "Al cambiar la contraseña se cerrarán tus sesiones activas.",
+      currentPassword: "Contraseña actual",
+      newPassword: "Nueva contraseña",
+      confirmPassword: "Confirmar nueva contraseña",
+      change: "Cambiar contraseña"
+    },
+    validation: {
+      email: "Introduce un correo electrónico válido.",
+      required: "Este campo es obligatorio.",
+      passwordLength: "La contraseña debe tener al menos 12 caracteres.",
+      passwordMatch: "Las contraseñas no coinciden."
+    },
+    feedback: {
+      profile: "Perfil actualizado.",
+      password: "Contraseña actualizada. Inicia sesión de nuevo."
+    },
+    errors: {
+      emailTaken: "Ese correo electrónico ya está en uso.",
+      currentPassword: "La contraseña actual no es correcta.",
+      unexpected: "No pudimos guardar los cambios. Inténtalo de nuevo."
+    }
   },
   errors: {
     notFound: {

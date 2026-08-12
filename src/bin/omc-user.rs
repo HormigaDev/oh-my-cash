@@ -62,6 +62,10 @@ async fn main() -> anyhow::Result<()> {
 
         locale: Set("pt-BR".to_owned()),
 
+        theme: Set("aurora".to_owned()),
+
+        theme_mode: Set("system".to_owned()),
+
         is_active: Set(true),
 
         password_changed_at: Set(Some(now)),

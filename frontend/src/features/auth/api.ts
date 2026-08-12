@@ -1,8 +1,29 @@
 import { apiRequest } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/errors";
-import { resolveAppLocale } from "@/i18n/locale";
 
-import type { AuthUser, LoginCredentials, SessionResponse } from "./types";
+import type {
+  AuthUser,
+  LoginCredentials,
+  SessionResponse,
+  ThemeMode,
+  ThemeName
+} from "./types";
+
+const themes: ThemeName[] = [
+  "aurora",
+  "ocean",
+  "royal",
+  "orchid",
+  "rose",
+  "sunset",
+  "forest",
+  "graphite",
+  "coral",
+  "nord",
+  "contrast-light",
+  "contrast-dark"
+];
+const themeModes: ThemeMode[] = ["system", "light", "dark"];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -16,7 +37,9 @@ function parseUser(value: unknown): AuthUser {
     (value.display_name !== null && typeof value.display_name !== "string") ||
     typeof value.currency !== "string" ||
     typeof value.timezone !== "string" ||
-    typeof value.locale !== "string"
+    typeof value.locale !== "string" ||
+    !themes.includes(value.theme as ThemeName) ||
+    !themeModes.includes(value.theme_mode as ThemeMode)
   ) {
     throw new ApiError(
       200,
@@ -31,9 +54,13 @@ function parseUser(value: unknown): AuthUser {
     displayName: value.display_name,
     currency: value.currency,
     timezone: value.timezone,
-    locale: resolveAppLocale(value.locale)
+    locale: value.locale,
+    theme: value.theme as ThemeName,
+    themeMode: value.theme_mode as ThemeMode
   };
 }
+
+export { parseUser };
 
 function parseSessionResponse(value: unknown): SessionResponse {
   if (!isRecord(value) || !("user" in value)) {

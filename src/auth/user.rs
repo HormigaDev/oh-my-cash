@@ -10,6 +10,8 @@ pub struct AuthUser {
     pub currency: String,
     pub timezone: String,
     pub locale: String,
+    pub theme: String,
+    pub theme_mode: String,
 }
 
 impl From<users::Model> for AuthUser {
@@ -21,6 +23,8 @@ impl From<users::Model> for AuthUser {
             currency: user.currency,
             timezone: user.timezone,
             locale: user.locale,
+            theme: user.theme,
+            theme_mode: user.theme_mode,
         }
     }
 }

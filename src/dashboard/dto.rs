@@ -8,11 +8,21 @@ use crate::transactions::dto::TransactionDirection;
 pub struct DashboardQuery {
     #[serde(default)]
     pub month: Option<String>,
+
+    #[serde(default)]
+    pub start_month: Option<String>,
+
+    #[serde(default)]
+    pub end_month: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct DashboardResponse {
     pub month: String,
+
+    pub start_month: String,
+
+    pub end_month: String,
 
     pub currency: String,
 
@@ -27,6 +37,14 @@ pub struct DashboardResponse {
 
 #[derive(Debug, Serialize)]
 pub struct DashboardSummary {
+    #[serde(with = "rust_decimal::serde::str")]
+    pub global_balance: Decimal,
+
+    #[serde(with = "rust_decimal::serde::str")]
+    pub global_projected_balance: Decimal,
+
+    pub global_projection_complete: bool,
+
     #[serde(with = "rust_decimal::serde::str")]
     pub income_received: Decimal,
 

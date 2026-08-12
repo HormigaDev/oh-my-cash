@@ -1,7 +1,7 @@
 use rust_decimal::Decimal;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, DbErr, EntityTrait, NotSet, QueryFilter, QueryOrder,
-    QuerySelect, Set, SqlErr, sea_query::Expr,
+    Set, SqlErr, sea_query::Expr,
 };
 use time::{Date, OffsetDateTime};
 use uuid::Uuid;
@@ -50,17 +50,16 @@ struct PointTransactionInput {
 pub async fn list(
     state: &AppState,
     auth: &AuthUser,
-    period: Option<&MonthPeriod>,
+    period: Option<(&MonthPeriod, &MonthPeriod)>,
 ) -> Result<Vec<TransactionResponse>, AppError> {
     let mut query = transactions::Entity::find().filter(transactions::Column::UserId.eq(auth.id));
 
-    if let Some(period) = period {
-        query = query.filter(month_filter(auth, period));
+    if let Some((start, end)) = period {
+        query = query.filter(month_filter(auth, start, end));
     }
 
     let models = query
         .order_by_desc(transactions::Column::CreatedAt)
-        .limit(200)
         .all(&state.db)
         .await?;
 
@@ -531,35 +530,42 @@ fn normalize_notes(value: Option<String>) -> Result<Option<String>, AppError> {
     Ok(Some(value.to_owned()))
 }
 
-fn month_filter(auth: &AuthUser, period: &MonthPeriod) -> Condition {
+fn month_filter(auth: &AuthUser, start: &MonthPeriod, end: &MonthPeriod) -> Condition {
+    let end_exclusive = end.next().map(|period| period.first_day()).unwrap_or(end.last_day());
     let recurring = Condition::all()
         .add(transactions::Column::RecurringRuleId.is_not_null())
-        .add(transactions::Column::RecurrencePeriod.eq(period.first_day()));
+        .add(transactions::Column::RecurrencePeriod.gte(start.first_day()))
+        .add(transactions::Column::RecurrencePeriod.lt(end_exclusive));
 
-    let paid_point_in_time = Condition::all()
+    let scheduled_point_in_time = Condition::all()
         .add(transactions::Column::RecurringRuleId.is_null())
-        .add(transactions::Column::Status.eq("paid"))
+        .add(transactions::Column::DueDate.is_not_null())
+        .add(transactions::Column::DueDate.gte(start.first_day()))
+        .add(transactions::Column::DueDate.lt(end_exclusive));
+
+    let unscheduled_point_in_time = Condition::all()
+        .add(transactions::Column::RecurringRuleId.is_null())
+        .add(transactions::Column::DueDate.is_null())
         .add(Expr::cust_with_values(
             r#"
-                    to_char(
-                        "transactions"."occurred_at"
-                        AT TIME ZONE $1,
-                        'YYYY-MM'
-                    ) = $2
+                    "transactions"."occurred_at" >= (
+                        $2::date::timestamp AT TIME ZONE $1
+                    )
+                    AND "transactions"."occurred_at" < (
+                        $3::date::timestamp AT TIME ZONE $1
+                    )
                     "#,
-            [auth.timezone.clone(), period.key().to_owned()],
+            [
+                auth.timezone.clone(),
+                start.first_day().to_string(),
+                end_exclusive.to_string(),
+            ],
         ));
-
-    let unpaid_point_in_time = Condition::all()
-        .add(transactions::Column::RecurringRuleId.is_null())
-        .add(transactions::Column::Status.ne("paid"))
-        .add(transactions::Column::DueDate.gte(period.first_day()))
-        .add(transactions::Column::DueDate.lte(period.last_day()));
 
     Condition::any()
         .add(recurring)
-        .add(paid_point_in_time)
-        .add(unpaid_point_in_time)
+        .add(scheduled_point_in_time)
+        .add(unscheduled_point_in_time)
 }
 
 #[cfg(test)]
@@ -578,12 +584,14 @@ mod tests {
             currency: "BRL".to_owned(),
             timezone: "America/Sao_Paulo".to_owned(),
             locale: "es".to_owned(),
+            theme: "aurora".to_owned(),
+            theme_mode: "system".to_owned(),
         };
         let period = MonthPeriod::parse("2026-08").unwrap();
 
         let statement = transactions::Entity::find()
             .filter(transactions::Column::UserId.eq(auth.id))
-            .filter(month_filter(&auth, &period))
+            .filter(month_filter(&auth, &period, &period))
             .build(DbBackend::Postgres);
 
         assert!(!statement.sql.contains('?'), "{}", statement.sql);

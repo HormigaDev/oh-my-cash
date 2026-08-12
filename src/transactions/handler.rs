@@ -26,13 +26,35 @@ pub async fn list(
 
     Query(query): Query<ListTransactionsQuery>,
 ) -> Result<Json<Vec<TransactionResponse>>, AppError> {
-    let period = query.month.as_deref().map(MonthPeriod::parse).transpose()?;
+    let (start, end) = match (query.start_month, query.end_month, query.month) {
+        (Some(start), Some(end), _) => (MonthPeriod::parse(&start)?, MonthPeriod::parse(&end)?),
+        (None, None, Some(month)) => {
+            let period = MonthPeriod::parse(&month)?;
+            (period.clone(), period)
+        }
+        _ => {
+            return Err(AppError::BadRequest(
+                "start_month and end_month are required".to_owned(),
+            ));
+        }
+    };
 
-    if let Some(period) = period.as_ref() {
-        materialize_month(&state, &auth, period).await?;
+    if start.first_day() > end.first_day() {
+        return Err(AppError::BadRequest(
+            "start_month cannot be after end_month".to_owned(),
+        ));
     }
 
-    let transactions = service::list(&state, &auth, period.as_ref()).await?;
+    let mut period = start.clone();
+    loop {
+        materialize_month(&state, &auth, &period).await?;
+        if period == end {
+            break;
+        }
+        period = period.next()?;
+    }
+
+    let transactions = service::list(&state, &auth, Some((&start, &end))).await?;
 
     Ok(Json(transactions))
 }

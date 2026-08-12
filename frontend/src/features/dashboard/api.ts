@@ -86,6 +86,9 @@ function category(value: unknown): DashboardCategory {
 function summary(value: unknown): DashboardSummary {
   if (!isRecord(value)) invalidResponse();
   return {
+    globalBalance: decimal(value.global_balance),
+    globalProjectedBalance: decimal(value.global_projected_balance),
+    globalProjectionComplete: boolean(value.global_projection_complete),
     incomeReceived: decimal(value.income_received),
     expensesPaid: decimal(value.expenses_paid),
     realBalance: decimal(value.real_balance),
@@ -162,9 +165,19 @@ function parseDashboard(value: unknown): Dashboard {
   if (!isRecord(value)) invalidResponse();
   const month = string(value.month);
   if (!isValidMonth(month)) invalidResponse();
+  const startMonth = string(value.start_month);
+  const endMonth = string(value.end_month);
+  if (
+    !isValidMonth(startMonth) ||
+    !isValidMonth(endMonth) ||
+    startMonth > endMonth
+  )
+    invalidResponse();
 
   return {
     month,
+    startMonth,
+    endMonth,
     currency: string(value.currency),
     summary: summary(value.summary),
     spendingByCategory: array(value.spending_by_category, spending),
@@ -173,11 +186,18 @@ function parseDashboard(value: unknown): Dashboard {
   };
 }
 
-export async function fetchDashboard(month: string) {
-  if (!isValidMonth(month)) {
+export async function fetchDashboard(startMonth: string, endMonth: string) {
+  if (
+    !isValidMonth(startMonth) ||
+    !isValidMonth(endMonth) ||
+    startMonth > endMonth
+  ) {
     throw new ApiError(400, "BAD_REQUEST", "Invalid dashboard month");
   }
 
-  const query = new URLSearchParams({ month });
+  const query = new URLSearchParams({
+    start_month: startMonth,
+    end_month: endMonth
+  });
   return parseDashboard(await apiRequest(`/dashboard?${query.toString()}`));
 }

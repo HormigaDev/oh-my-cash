@@ -22,6 +22,10 @@ pub struct AuthUserResponse {
     pub timezone: String,
 
     pub locale: String,
+
+    pub theme: String,
+
+    pub theme_mode: String,
 }
 
 impl From<AuthUser> for AuthUserResponse {
@@ -38,6 +42,10 @@ impl From<AuthUser> for AuthUserResponse {
             timezone: user.timezone,
 
             locale: user.locale,
+
+            theme: user.theme,
+
+            theme_mode: user.theme_mode,
         }
     }
 }

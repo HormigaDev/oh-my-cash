@@ -12,6 +12,12 @@ use crate::{entities::transactions, error::AppError};
 pub struct ListTransactionsQuery {
     #[serde(default)]
     pub month: Option<String>,
+
+    #[serde(default)]
+    pub start_month: Option<String>,
+
+    #[serde(default)]
+    pub end_month: Option<String>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]

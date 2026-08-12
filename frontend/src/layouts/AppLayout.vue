@@ -88,6 +88,16 @@
               </q-item-section>
               <q-item-section>{{ t("navigation.categories") }}</q-item-section>
             </q-item>
+            <q-item
+              clickable
+              exact
+              :to="{ name: 'account' }"
+              active-class="app-navigation__item--active"
+              @click="closeDrawerOnMobile"
+            >
+              <q-item-section avatar><q-icon name="manage_accounts" /></q-item-section>
+              <q-item-section>{{ t("navigation.account") }}</q-item-section>
+            </q-item>
           </q-list>
         </nav>
       </div>
@@ -100,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { useQuasar } from "quasar";
@@ -108,11 +118,23 @@ import { useQuasar } from "quasar";
 import OMCBrand from "@/components/OMCBrand.vue";
 import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
 import UserMenu from "@/components/UserMenu.vue";
+import { useAuthStore } from "@/features/auth/authStore";
+import { useThemeStore } from "@/features/preferences/themeStore";
 
 const drawerOpen = ref(false);
 const route = useRoute();
 const $q = useQuasar();
 const { t } = useI18n();
+const auth = useAuthStore();
+const theme = useThemeStore();
+
+watch(
+  () => auth.user,
+  user => {
+    if (user) theme.hydrate(user.theme, user.themeMode);
+  },
+  { immediate: true }
+);
 
 const pageTitle = computed(() =>
   route.meta.titleKey ? t(route.meta.titleKey) : t("app.name")

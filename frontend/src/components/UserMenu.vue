@@ -10,6 +10,10 @@
       </div>
       <q-separator />
       <q-list class="user-menu__actions">
+        <q-item v-close-popup clickable :to="{ name: 'account' }">
+          <q-item-section avatar><q-icon name="manage_accounts" /></q-item-section>
+          <q-item-section>{{ t("user.manageAccount") }}</q-item-section>
+        </q-item>
         <q-item
           v-close-popup
           clickable

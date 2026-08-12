@@ -14,6 +14,8 @@ pub struct Model {
     pub currency: String,
     pub timezone: String,
     pub locale: String,
+    pub theme: String,
+    pub theme_mode: String,
 
     pub is_active: bool,
 

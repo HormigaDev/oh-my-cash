@@ -102,13 +102,17 @@ function manualBody(input: ManualTransactionInput, includeStatus: boolean) {
     : { ...base, occurred_at: input.occurredAt };
 }
 
-export async function listTransactions(month: string) {
-  if (!isValidMonth(month)) {
+export async function listTransactions(startMonth: string, endMonth: string) {
+  if (
+    !isValidMonth(startMonth) ||
+    !isValidMonth(endMonth) ||
+    startMonth > endMonth
+  ) {
     throw new ApiError(400, "BAD_REQUEST", "Invalid transaction month");
   }
 
   const response = await apiRequest(
-    `/transactions?${new URLSearchParams({ month }).toString()}`
+    `/transactions?${new URLSearchParams({ start_month: startMonth, end_month: endMonth }).toString()}`
   );
 
   if (!Array.isArray(response)) {

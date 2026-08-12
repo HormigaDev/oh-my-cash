@@ -7,7 +7,25 @@ export interface AuthUser {
   currency: string;
   timezone: string;
   locale: string;
+  theme: ThemeName;
+  themeMode: ThemeMode;
 }
+
+export type ThemeName =
+  | "aurora"
+  | "ocean"
+  | "royal"
+  | "orchid"
+  | "rose"
+  | "sunset"
+  | "forest"
+  | "graphite"
+  | "coral"
+  | "nord"
+  | "contrast-light"
+  | "contrast-dark";
+
+export type ThemeMode = "system" | "light" | "dark";
 
 export interface LoginCredentials {
   email: string;

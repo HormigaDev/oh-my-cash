@@ -64,6 +64,19 @@ impl MonthPeriod {
 
         Date::from_calendar_date(self.year, self.month, actual_day).map_err(|_| AppError::Internal)
     }
+
+    pub fn next(&self) -> Result<Self, AppError> {
+        let (year, month) = if self.month == Month::December {
+            (self.year + 1, Month::January)
+        } else {
+            (
+                self.year,
+                Month::try_from(u8::from(self.month) + 1).map_err(|_| AppError::Internal)?,
+            )
+        };
+
+        Self::parse(&format!("{year:04}-{:02}", u8::from(month)))
+    }
 }
 
 fn invalid_month() -> AppError {

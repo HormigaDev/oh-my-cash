@@ -1,8 +1,6 @@
 <template>
   <div class="omc-brand" :class="{ 'omc-brand--compact': compact }">
-    <span class="omc-brand__mark" aria-hidden="true">
-      {{ t("app.shortName") }}
-    </span>
+    <img class="omc-brand__mark" src="/logo.png" :alt="t('app.name')" />
     <span v-if="!compact" class="omc-brand__copy">
       <strong>{{ t("app.name") }}</strong>
       <small>{{ t("app.tagline") }}</small>
@@ -27,17 +25,12 @@ const { t } = useI18n();
 }
 
 .omc-brand__mark {
-  display: inline-grid;
+  display: block;
   flex: 0 0 auto;
   width: 2.75rem;
   height: 2.75rem;
-  place-items: center;
   border-radius: var(--omc-radius-md);
-  background: var(--omc-color-primary);
-  color: var(--omc-color-text-on-primary);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  object-fit: cover;
   box-shadow: var(--omc-shadow-sm);
 }
 

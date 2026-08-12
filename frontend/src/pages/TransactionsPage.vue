@@ -27,11 +27,11 @@
           icon="chevron_left"
           :disable="loadStatus === 'loading'"
           :aria-label="t('transactions.month.previous')"
-          @click="changeMonth(-1)"
+          @click="changeRange(-1)"
         />
         <div class="transactions-period__value">
           <span>{{ t("transactions.month.eyebrow") }}</span>
-          <strong>{{ selectedMonthLabel }}</strong>
+          <strong>{{ selectedPeriodLabel }}</strong>
         </div>
         <q-btn
           flat
@@ -39,17 +39,24 @@
           icon="chevron_right"
           :disable="loadStatus === 'loading'"
           :aria-label="t('transactions.month.next')"
-          @click="changeMonth(1)"
+          @click="changeRange(1)"
         />
         <AppMonthField
-          v-model="selectedMonth"
+          v-model="startMonth"
           class="transactions-period__picker"
-          :label="t('transactions.month.choose')"
+          :label="t('transactions.month.start')"
           :disable="loadStatus === 'loading'"
-          @update:model-value="loadTransactions"
+          @update:model-value="normalizeRange('start')"
+        />
+        <AppMonthField
+          v-model="endMonth"
+          class="transactions-period__picker"
+          :label="t('transactions.month.end')"
+          :disable="loadStatus === 'loading'"
+          @update:model-value="normalizeRange('end')"
         />
         <q-btn
-          v-if="selectedMonth !== thisMonth"
+          v-if="startMonth !== thisMonth || endMonth !== thisMonth"
           flat
           no-caps
           color="primary"
@@ -85,6 +92,18 @@
           <div>
             <span>{{ t("transactions.summary.total") }}</span>
             <strong>{{ transactions.length }}</strong>
+          </div>
+          <div>
+            <span>{{ t("transactions.summary.income") }}</span>
+            <strong class="transactions-summary__positive">{{ moneyTotals.income }}</strong>
+          </div>
+          <div>
+            <span>{{ t("transactions.summary.expenses") }}</span>
+            <strong class="transactions-summary__negative">{{ moneyTotals.expenses }}</strong>
+          </div>
+          <div>
+            <span>{{ t("transactions.summary.balance") }}</span>
+            <strong :class="moneyTotals.balanceValue < 0 ? 'transactions-summary__negative' : 'transactions-summary__positive'">{{ moneyTotals.balance }}</strong>
           </div>
         </section>
 
@@ -308,9 +327,11 @@ import { useQuasar } from "quasar";
 import AppPageHeader from "@/components/AppPageHeader.vue";
 import AppMonthField from "@/components/AppMonthField.vue";
 import { useAppLocale } from "@/composables/useAppLocale";
+import { useFinancialFormat } from "@/composables/useFinancialFormat";
 import { useAuthStore } from "@/features/auth/authStore";
 import { listCategories } from "@/features/categories/api";
 import type { Category } from "@/features/categories/types";
+import { decimalToNumber } from "@/features/recurring/money";
 import PayTransactionDialog from "@/features/transactions/PayTransactionDialog.vue";
 import TransactionCard from "@/features/transactions/TransactionCard.vue";
 import TransactionFormDialog from "@/features/transactions/TransactionFormDialog.vue";
@@ -331,7 +352,7 @@ import type {
 import {
   currentMonth,
   dateTimeInputForMonth,
-  formatMonth,
+  formatMonthRange,
   isValidMonth,
   shiftMonth
 } from "@/features/transactions/month";
@@ -347,11 +368,13 @@ const router = useRouter();
 const $q = useQuasar();
 const { t } = useI18n();
 const { locale } = useAppLocale();
+const { formatMoney } = useFinancialFormat();
 
 const transactions = ref<Transaction[]>([]);
 const categories = ref<Category[]>([]);
 const thisMonth = currentMonth(auth.user?.timezone ?? "America/Sao_Paulo");
-const selectedMonth = ref(thisMonth);
+const startMonth = ref(thisMonth);
+const endMonth = ref(thisMonth);
 const loadStatus = ref<LoadStatus>("loading");
 let loadSequence = 0;
 const search = ref("");
@@ -377,11 +400,11 @@ const statusOptions = computed(() => [
   { label: t("transactions.status.skipped"), value: "skipped" },
   { label: t("transactions.status.cancelled"), value: "cancelled" }
 ]);
-const selectedMonthLabel = computed(() =>
-  formatMonth(selectedMonth.value, locale.value)
+const selectedPeriodLabel = computed(() =>
+  formatMonthRange(startMonth.value, endMonth.value, locale.value)
 );
 const initialOccurredAt = computed(() =>
-  dateTimeInputForMonth(selectedMonth.value, thisMonth)
+  dateTimeInputForMonth(endMonth.value, thisMonth)
 );
 const statusCounts = computed(() => ({
   pending: transactions.value.filter(
@@ -390,6 +413,23 @@ const statusCounts = computed(() => ({
   paid: transactions.value.filter(transaction => transaction.status === "paid")
     .length
 }));
+const moneyTotals = computed(() => {
+  let income = 0;
+  let expenses = 0;
+  for (const transaction of transactions.value) {
+    if (transaction.status !== "paid" || transaction.actualAmount === null) continue;
+    const amount = decimalToNumber(transaction.actualAmount);
+    if (transaction.direction === "income") income += amount;
+    else expenses += amount;
+  }
+  const balanceValue = income - expenses;
+  return {
+    income: formatMoney(income),
+    expenses: formatMoney(expenses),
+    balance: formatMoney(balanceValue),
+    balanceValue
+  };
+});
 const filteredTransactions = computed(() => {
   const query = search.value.trim().toLocaleLowerCase("es");
 
@@ -443,13 +483,21 @@ async function loadData() {
 }
 
 async function loadTransactions() {
-  if (!isValidMonth(selectedMonth.value)) return;
+  if (
+    !isValidMonth(startMonth.value) ||
+    !isValidMonth(endMonth.value) ||
+    startMonth.value > endMonth.value
+  )
+    return;
 
   const sequence = ++loadSequence;
   loadStatus.value = "loading";
 
   try {
-    const loadedTransactions = await listTransactions(selectedMonth.value);
+    const loadedTransactions = await listTransactions(
+      startMonth.value,
+      endMonth.value
+    );
     if (sequence !== loadSequence) return;
 
     transactions.value = loadedTransactions;
@@ -460,13 +508,23 @@ async function loadTransactions() {
   }
 }
 
-function changeMonth(offset: number) {
-  selectedMonth.value = shiftMonth(selectedMonth.value, offset);
+function changeRange(offset: number) {
+  startMonth.value = shiftMonth(startMonth.value, offset);
+  endMonth.value = shiftMonth(endMonth.value, offset);
   void loadTransactions();
 }
 
 function goToCurrentMonth() {
-  selectedMonth.value = thisMonth;
+  startMonth.value = thisMonth;
+  endMonth.value = thisMonth;
+  void loadTransactions();
+}
+
+function normalizeRange(changed: "start" | "end") {
+  if (startMonth.value > endMonth.value) {
+    if (changed === "start") endMonth.value = startMonth.value;
+    else startMonth.value = endMonth.value;
+  }
   void loadTransactions();
 }
 
@@ -518,6 +576,14 @@ async function saveTransaction(input: ManualTransactionInput) {
         ...input,
         clientOperationId: operationIdFor(input)
       });
+      if (
+        input.status === "pending" &&
+        (input.dueDate.slice(0, 7) < startMonth.value ||
+          input.dueDate.slice(0, 7) > endMonth.value)
+      ) {
+        startMonth.value = input.dueDate.slice(0, 7);
+        endMonth.value = input.dueDate.slice(0, 7);
+      }
     }
     await loadTransactions();
     formOpen.value = false;
@@ -689,6 +755,9 @@ onMounted(() => void loadData());
   color: var(--omc-color-text);
   font-size: 1.25rem;
 }
+
+.transactions-summary__positive { color: var(--omc-color-positive) !important; }
+.transactions-summary__negative { color: var(--omc-color-negative) !important; }
 
 .transactions-toolbar {
   display: grid;
