@@ -1,0 +1,41 @@
+# Changelog
+
+All notable changes to Oh My Cash are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.1.0] - 2026-08-13
+
+Initial release of Oh My Cash, a self-hosted personal finance application.
+
+### Added
+
+- Income and expense tracking with paid, pending, skipped, and cancelled states.
+- Retroactive and future-dated pending transactions without automatic payment confirmation.
+- Custom income, expense, and mixed-use categories with curated colors and icons.
+- Monthly recurring rules with fixed amounts or variable estimates, including optional minimum and maximum values.
+- Independent monthly recurring transactions that preserve historical values after a rule changes.
+- Controlled recurring-rule materialization for the current and following month.
+- Virtual projections for more distant months without creating database records.
+- Dashboard with confirmed period results, period projections, global paid balance, cash-flow charts, and category spending charts.
+- Month-range selection for dashboard insights and transaction history.
+- Overdue transaction detection with direct dashboard navigation, server-side filtering, and ascending or descending target-date ordering.
+- Server-side pagination for transactions, recurring rules, and administrator user management, with a maximum page size of 100.
+- Responsive pagination and transaction controls designed for desktop and mobile devices.
+- User profile management for name, email address, password, currency, timezone, language, and appearance preferences.
+- Administrator role and protected account management for creating, updating, recovering, and deleting users.
+- Spanish, Brazilian Portuguese, and English interfaces.
+- Currency selection with localized symbols across monetary values and inputs.
+- Multiple configurable color themes with light and dark palettes, system-mode detection, and dedicated high-contrast themes.
+- Quasar date pickers localized according to the selected application language.
+- Customized desktop and mobile scrollbars.
+- PWA frontend built with Vue 3, Quasar, the Composition API, and TypeScript.
+- Rust backend built with Axum, SeaORM, and PostgreSQL.
+- Consistent JSON responses for successful API operations and errors.
+- Secure cookie-based authentication with Argon2 password hashing and revocable sessions.
+- PostgreSQL migrations, administrator bootstrap command, and development seed data.
+- Bare-metal deployment through systemd and Nginx with incremental builds, restart resilience, health checks, and automated deployment tooling.
+- MIT License and self-hosting documentation.
+
+[0.1.0]: https://github.com/HormigaDev/oh-my-cash/releases/tag/v0.1.0
