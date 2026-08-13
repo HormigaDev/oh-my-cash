@@ -8,7 +8,7 @@
 [![Quasar](https://img.shields.io/badge/UI-Quasar-1976D2?logo=quasar&logoColor=white&style=for-the-badge)](https://quasar.dev/)
 [![Support the project](https://img.shields.io/badge/Support-PayPal-00457C?logo=paypal&logoColor=white&style=for-the-badge)](https://www.paypal.com/donate/?hosted_button_id=UCL7EE2G44KPQ)
 
-Oh My Cash (OMC) is a self-hosted personal finance application for tracking income, expenses, recurring payments, budgets, and projected balances without handing private financial data to a third party.
+Oh My Cash (OMC) is a self-hosted personal finance application for tracking income, expenses, recurring payments, and period projections without handing private financial data to a third party.
 
 If this project is useful to you, you can support its development through [PayPal](https://www.paypal.com/donate/?hosted_button_id=UCL7EE2G44KPQ).
 
@@ -43,25 +43,32 @@ The Rust backend was not selected primarily for performance. It was a practical 
 ## What It Does
 
 - Records income and expenses, whether already paid or still pending.
-- Organizes transactions with customizable categories.
-- Creates recurring rules for fixed and variable payments, such as rent, salary, subscriptions, or invoices.
-- Materializes recurring rules by month, preserving each month's historical values when rules change later.
-- Supports date ranges for transactions and dashboard insights.
-- Shows actual, projected, global, and projected global balances.
-- Highlights pending and overdue payments.
+- Allows pending transactions to use past or future target dates without treating them as paid.
+- Organizes transactions with customizable categories, colors, and icons.
+- Creates recurring rules for fixed amounts and variable estimates, including optional minimum and maximum values.
+- Preserves historical recurring transactions when a rule changes in a later month.
+- Supports month ranges in the dashboard and transaction history.
+- Shows confirmed period results, period projections, and the global balance of paid transactions.
+- Highlights overdue payments and links directly to a filtered, sortable transaction view.
+- Paginates transactions, recurring rules, and administrator user lists to keep large accounts manageable.
 - Provides charts for cash flow and category spending.
-- Supports user-managed currencies, language, timezone, appearance, and security preferences.
-- Includes administrator-only user management for account recovery and maintenance.
+- Supports user-managed currency, language, timezone, profile, password, and appearance preferences.
+- Uses localized currency symbols throughout monetary values and inputs.
+- Includes administrator-only account creation, recovery, editing, and deletion.
 - Offers Spanish, Brazilian Portuguese, and English interfaces.
-- Includes multiple light, dark, and high-contrast themes.
+- Includes multiple color themes with light and dark palettes, system-mode detection, and dedicated high-contrast themes.
 
 ## How It Works
 
-Each transaction is either paid, pending, skipped, or cancelled. Pending transactions may include an estimated amount and a due date, allowing OMC to calculate a projection without confusing an expected payment with a completed one.
+Each transaction is paid, pending, skipped, or cancelled. Pending transactions may include an estimated amount and a target date, allowing OMC to calculate a projection without confusing an expected payment with a completed one. A past target date does not automatically mark a transaction as paid.
 
-Recurring rules generate independent monthly transactions. This is important for accurate history: if a salary changes in September, a materialized transaction from August remains untouched.
+Recurring rules describe monthly income or expenses. OMC persists only the current month and the immediately following month when either is requested. More distant months are calculated virtually instead of being inserted into the database. This prevents large date-range queries from creating thousands of records.
 
-The dashboard combines confirmed activity with known pending estimates. It presents the current period as well as a global balance across all recorded activity, so the financial picture does not reset every month.
+Once a month has been materialized, its transaction remains independent from later changes to the rule. For example, increasing a salary rule for September does not rewrite the value already recorded for August.
+
+The dashboard combines confirmed activity with known pending estimates for the selected period. It also shows a global balance calculated exclusively from paid transactions across all recorded activity. Future virtual transactions contribute to period projections without changing that global balance or creating database records.
+
+Overdue transactions can be opened directly from the dashboard, filtered across the complete paginated result set, and ordered by target date in ascending or descending order.
 
 ## Technology
 
