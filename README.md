@@ -14,6 +14,8 @@ If this project is useful to you, you can support its development through [PayPa
 
 </div>
 
+![Demostración del dashboard](./assets/ohmycash_showcase.png)
+
 ## Table of Contents
 
 - [Why Oh My Cash?](#why-oh-my-cash)
