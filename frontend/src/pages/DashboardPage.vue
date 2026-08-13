@@ -54,7 +54,7 @@
       >
         <div class="dashboard-summary">
           <q-card
-            v-for="index in 6"
+            v-for="index in 5"
             :key="index"
             flat
             class="dashboard-metric dashboard-metric--skeleton"
@@ -134,7 +134,15 @@
               flat
               dense
               no-caps
-              :to="{ name: 'transactions' }"
+              :to="{
+                name: 'transactions',
+                query: {
+                  overdue: '1',
+                  sort_order: 'asc',
+                  start_month: startMonth,
+                  end_month: endMonth
+                }
+              }"
               :label="t('dashboard.actions.review')"
           /></template>
         </q-banner>
@@ -378,17 +386,6 @@ const metrics = computed(() => {
       className: summary.globalBalance.startsWith("-")
         ? "dashboard-metric--negative"
         : "dashboard-metric--primary"
-    },
-    {
-      label: t("dashboard.metrics.globalProjectedBalance"),
-      icon: "query_stats",
-      value: money(summary.globalProjectedBalance),
-      caption: summary.globalProjectionComplete
-        ? t("dashboard.metrics.globalProjectedBalanceCaption")
-        : t("dashboard.metrics.incomplete"),
-      className: summary.globalProjectedBalance.startsWith("-")
-        ? "dashboard-metric--negative"
-        : "dashboard-metric--info"
     },
     {
       label: t("dashboard.metrics.realBalance"),

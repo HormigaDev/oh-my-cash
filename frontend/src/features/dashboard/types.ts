@@ -10,8 +10,6 @@ export interface DashboardCategory {
 
 export interface DashboardSummary {
   globalBalance: string;
-  globalProjectedBalance: string;
-  globalProjectionComplete: boolean;
   incomeReceived: string;
   expensesPaid: string;
   realBalance: string;

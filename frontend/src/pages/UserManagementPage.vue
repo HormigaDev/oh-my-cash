@@ -71,6 +71,13 @@
           </q-item>
         </q-list>
       </q-card>
+      <AppPagination
+        :page="page"
+        :total-pages="totalPages"
+        :total="total"
+        :loading="loading"
+        @update:page="changePage"
+      />
     </div>
 
     <q-dialog
@@ -229,6 +236,7 @@ import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 
 import AppPageHeader from "@/components/AppPageHeader.vue";
+import AppPagination from "@/components/AppPagination.vue";
 import {
   createManagedUser,
   deleteManagedUser,
@@ -243,6 +251,9 @@ const auth = useAuthStore();
 const $q = useQuasar();
 const { t } = useI18n();
 const users = ref<ManagedUser[]>([]);
+const page = ref(1);
+const total = ref(0);
+const totalPages = ref(0);
 const loading = ref(true);
 const loadError = ref<string | null>(null);
 const formOpen = ref(false);
@@ -318,12 +329,19 @@ async function loadUsers() {
   loading.value = true;
   loadError.value = null;
   try {
-    users.value = await fetchManagedUsers();
+    const result = await fetchManagedUsers(page.value);
+    users.value = result.items;
+    total.value = result.total;
+    totalPages.value = result.totalPages;
   } catch (error) {
     loadError.value = errorMessage(error);
   } finally {
     loading.value = false;
   }
+}
+function changePage(value: number) {
+  page.value = value;
+  void loadUsers();
 }
 async function submitForm() {
   saving.value = true;

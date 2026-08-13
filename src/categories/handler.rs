@@ -13,7 +13,7 @@ use crate::{
         dto::{CategoryResponse, CreateCategoryRequest, UpdateCategoryRequest},
         service,
     },
-    error::AppError,
+    error::{AppError, SuccessResponse},
 };
 
 pub async fn list(
@@ -50,8 +50,8 @@ pub async fn archive(
     auth: AuthUser,
     State(state): State<AppState>,
     Path(category_id): Path<Uuid>,
-) -> Result<StatusCode, AppError> {
+) -> Result<Json<SuccessResponse>, AppError> {
     service::archive(&state, &auth, category_id).await?;
 
-    Ok(StatusCode::NO_CONTENT)
+    Ok(Json(SuccessResponse::ok()))
 }

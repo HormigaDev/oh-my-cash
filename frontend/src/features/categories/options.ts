@@ -14,7 +14,21 @@ export const categoryIconOptions = [
   "movie",
   "payments",
   "savings",
-  "work"
+  "work",
+  "shopping_cart",
+  "flight",
+  "device_hub",
+  "storefront",
+  "phone_iphone",
+  "wifi",
+  "account_balance_wallet",
+  "computer",
+  "sports_esports",
+  "water_drop",
+  "lightbulb",
+  "medication",
+  "redeem",
+  "swap_horiz"
 ] as const;
 
 export const categoryKindOptions: ReadonlyArray<{

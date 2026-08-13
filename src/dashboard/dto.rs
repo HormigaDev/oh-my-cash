@@ -41,11 +41,6 @@ pub struct DashboardSummary {
     pub global_balance: Decimal,
 
     #[serde(with = "rust_decimal::serde::str")]
-    pub global_projected_balance: Decimal,
-
-    pub global_projection_complete: bool,
-
-    #[serde(with = "rust_decimal::serde::str")]
     pub income_received: Decimal,
 
     #[serde(with = "rust_decimal::serde::str")]

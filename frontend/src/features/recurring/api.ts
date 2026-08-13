@@ -1,5 +1,6 @@
 import { apiRequest } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/errors";
+import { paginationParams, parsePage, type Page } from "@/lib/api/pagination";
 
 import type {
   RecurringAmount,
@@ -108,14 +109,14 @@ function requestBody(input: RecurringRuleInput) {
   };
 }
 
-export async function listRecurringRules(): Promise<RecurringRule[]> {
-  const response = await apiRequest("/recurring-rules");
-
-  if (!Array.isArray(response)) {
-    throw invalidResponse();
-  }
-
-  return response.map(parseRecurringRule);
+export async function listRecurringRules(
+  page = 1,
+  perPage = 25
+): Promise<Page<RecurringRule>> {
+  const response = await apiRequest(
+    `/recurring-rules?${new URLSearchParams(paginationParams(page, perPage))}`
+  );
+  return parsePage(response, parseRecurringRule);
 }
 
 export async function createRecurringRule(

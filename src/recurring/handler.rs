@@ -1,6 +1,6 @@
 use axum::{
     Json,
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
 };
 use uuid::Uuid;
@@ -8,9 +8,13 @@ use uuid::Uuid;
 use crate::{
     app::AppState,
     auth::AuthUser,
-    error::AppError,
+    error::{AppError, SuccessResponse},
+    pagination::PageResponse,
     recurring::{
-        dto::{CreateRecurringRuleRequest, RecurringRuleResponse, UpdateRecurringRuleRequest},
+        dto::{
+            CreateRecurringRuleRequest, ListRecurringRulesQuery, RecurringRuleResponse,
+            UpdateRecurringRuleRequest,
+        },
         service,
     },
 };
@@ -18,8 +22,9 @@ use crate::{
 pub async fn list(
     auth: AuthUser,
     State(state): State<AppState>,
-) -> Result<Json<Vec<RecurringRuleResponse>>, AppError> {
-    let rules = service::list(&state, &auth).await?;
+    Query(query): Query<ListRecurringRulesQuery>,
+) -> Result<Json<PageResponse<RecurringRuleResponse>>, AppError> {
+    let rules = service::list(&state, &auth, query.pagination.validate()?).await?;
 
     Ok(Json(rules))
 }
@@ -49,8 +54,8 @@ pub async fn deactivate(
     auth: AuthUser,
     State(state): State<AppState>,
     Path(rule_id): Path<Uuid>,
-) -> Result<StatusCode, AppError> {
+) -> Result<Json<SuccessResponse>, AppError> {
     service::deactivate(&state, &auth, rule_id).await?;
 
-    Ok(StatusCode::NO_CONTENT)
+    Ok(Json(SuccessResponse::ok()))
 }

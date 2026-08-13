@@ -1,11 +1,13 @@
 use std::sync::Arc;
 
-use axum::{Router, routing::get};
+use axum::{Router, middleware, routing::get};
 use sea_orm::DatabaseConnection;
 use tower_cookies::CookieManagerLayer;
 use tower_http::trace::TraceLayer;
 
-use crate::{admin, account, auth, categories, config::Config, dashboard, health, recurring, transactions};
+use crate::{
+    account, admin, auth, categories, config::Config, dashboard, health, recurring, transactions,
+};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -27,6 +29,7 @@ pub fn create_router(state: AppState) -> Router {
         .nest("/api/v1", api)
         .route("/health/live", get(health::live))
         .route("/health/ready", get(health::ready))
+        .layer(middleware::from_fn(crate::error::ensure_json_response))
         .layer(TraceLayer::new_for_http())
         .layer(CookieManagerLayer::new())
         .with_state(state)

@@ -1,6 +1,12 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+#[derive(Debug, Deserialize)]
+pub struct ListUsersQuery {
+    #[serde(flatten)]
+    pub pagination: crate::pagination::PaginationQuery,
+}
+
 #[derive(Debug, Serialize)]
 pub struct ManagedUserResponse {
     pub id: Uuid,

@@ -76,8 +76,9 @@
         {{ t("transactions.materialization.notice") }}
       </q-banner>
 
-      <div v-if="loadStatus === 'ready' && transactions.length > 0">
+      <div v-if="loadStatus === 'ready'">
         <section
+          v-if="transactions.length > 0"
           class="transactions-summary"
           :aria-label="t('transactions.summary.label')"
         >
@@ -91,7 +92,7 @@
           </div>
           <div>
             <span>{{ t("transactions.summary.total") }}</span>
-            <strong>{{ transactions.length }}</strong>
+            <strong>{{ total }}</strong>
           </div>
           <div>
             <span>{{ t("transactions.summary.income") }}</span>
@@ -142,6 +143,23 @@
               class="transactions-toolbar__filters"
             />
           </div>
+          <q-toggle
+            v-model="overdueOnly"
+            color="negative"
+            :label="t('transactions.filters.overdueOnly')"
+            @update:model-value="applyServerFilters"
+          />
+          <q-select
+            v-model="sortOrder"
+            dense
+            outlined
+            emit-value
+            map-options
+            class="transactions-toolbar__sort"
+            :label="t('transactions.filters.sortLabel')"
+            :options="sortOptions"
+            @update:model-value="applyServerFilters"
+          />
         </section>
 
         <div class="transactions-page__result-count" role="status">
@@ -260,6 +278,13 @@
           @cancel="openTransitionDialog('cancel', $event)"
         />
       </section>
+      <AppPagination
+        v-if="loadStatus === 'ready'"
+        :page="page"
+        :total-pages="totalPages"
+        :total="total"
+        @update:page="changePage"
+      />
     </div>
 
     <TransactionFormDialog
@@ -337,6 +362,7 @@ import { useQuasar } from "quasar";
 
 import AppPageHeader from "@/components/AppPageHeader.vue";
 import AppMonthField from "@/components/AppMonthField.vue";
+import AppPagination from "@/components/AppPagination.vue";
 import { useAppLocale } from "@/composables/useAppLocale";
 import { useFinancialFormat } from "@/composables/useFinancialFormat";
 import { useAuthStore } from "@/features/auth/authStore";
@@ -382,14 +408,32 @@ const { locale } = useAppLocale();
 const { formatMoney } = useFinancialFormat();
 
 const transactions = ref<Transaction[]>([]);
+const page = ref(1);
+const total = ref(0);
+const totalPages = ref(0);
 const categories = ref<Category[]>([]);
 const thisMonth = currentMonth(auth.user?.timezone ?? "America/Sao_Paulo");
-const startMonth = ref(thisMonth);
-const endMonth = ref(thisMonth);
+const routeStartMonth =
+  typeof route.query.start_month === "string" &&
+  isValidMonth(route.query.start_month)
+    ? route.query.start_month
+    : thisMonth;
+const routeEndMonth =
+  typeof route.query.end_month === "string" &&
+  isValidMonth(route.query.end_month) &&
+  route.query.end_month >= routeStartMonth
+    ? route.query.end_month
+    : routeStartMonth;
+const startMonth = ref(routeStartMonth);
+const endMonth = ref(routeEndMonth);
 const loadStatus = ref<LoadStatus>("loading");
 let loadSequence = 0;
 const search = ref("");
 const statusFilter = ref<StatusFilter>("all");
+const overdueOnly = ref(route.query.overdue === "1");
+const sortOrder = ref<"asc" | "desc">(
+  route.query.sort_order === "asc" ? "asc" : "desc"
+);
 const formOpen = ref(false);
 const editingTransaction = ref<Transaction | null>(null);
 const saving = ref(false);
@@ -410,6 +454,10 @@ const statusOptions = computed(() => [
   { label: t("transactions.status.paid"), value: "paid" },
   { label: t("transactions.status.skipped"), value: "skipped" },
   { label: t("transactions.status.cancelled"), value: "cancelled" }
+]);
+const sortOptions = computed(() => [
+  { label: t("transactions.filters.oldestFirst"), value: "asc" },
+  { label: t("transactions.filters.newestFirst"), value: "desc" }
 ]);
 const selectedPeriodLabel = computed(() =>
   formatMonthRange(startMonth.value, endMonth.value, locale.value)
@@ -508,11 +556,17 @@ async function loadTransactions() {
   try {
     const loadedTransactions = await listTransactions(
       startMonth.value,
-      endMonth.value
+      endMonth.value,
+      page.value,
+      25,
+      overdueOnly.value,
+      sortOrder.value
     );
     if (sequence !== loadSequence) return;
 
-    transactions.value = loadedTransactions;
+    transactions.value = loadedTransactions.items;
+    total.value = loadedTransactions.total;
+    totalPages.value = loadedTransactions.totalPages;
     loadStatus.value = "ready";
   } catch (error) {
     if (sequence !== loadSequence) return;
@@ -521,14 +575,26 @@ async function loadTransactions() {
 }
 
 function changeRange(offset: number) {
+  page.value = 1;
   startMonth.value = shiftMonth(startMonth.value, offset);
   endMonth.value = shiftMonth(endMonth.value, offset);
   void loadTransactions();
 }
 
 function goToCurrentMonth() {
+  page.value = 1;
   startMonth.value = thisMonth;
   endMonth.value = thisMonth;
+  void loadTransactions();
+}
+
+function changePage(value: number) {
+  page.value = value;
+  void loadTransactions();
+}
+
+function applyServerFilters() {
+  page.value = 1;
   void loadTransactions();
 }
 
@@ -675,6 +741,9 @@ async function confirmTransition() {
 function clearFilters() {
   search.value = "";
   statusFilter.value = "all";
+  overdueOnly.value = false;
+  sortOrder.value = "desc";
+  applyServerFilters();
 }
 
 onMounted(() => void loadData());
@@ -783,6 +852,10 @@ onMounted(() => void loadData());
 
 .transactions-toolbar__scroll {
   overflow-x: auto;
+}
+
+.transactions-toolbar__sort {
+  min-width: 13rem;
 }
 
 .transactions-toolbar__filters {
@@ -942,7 +1015,8 @@ onMounted(() => void loadData());
   }
 
   .transactions-toolbar {
-    grid-template-columns: minmax(15rem, 1fr) auto;
+    grid-template-columns: minmax(15rem, 1fr) auto auto minmax(13rem, auto);
+    align-items: center;
   }
 
   .transactions-period__value {

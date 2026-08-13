@@ -87,8 +87,6 @@ function summary(value: unknown): DashboardSummary {
   if (!isRecord(value)) invalidResponse();
   return {
     globalBalance: decimal(value.global_balance),
-    globalProjectedBalance: decimal(value.global_projected_balance),
-    globalProjectionComplete: boolean(value.global_projection_complete),
     incomeReceived: decimal(value.income_received),
     expensesPaid: decimal(value.expenses_paid),
     realBalance: decimal(value.real_balance),

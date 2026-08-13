@@ -1,5 +1,5 @@
 use rust_decimal::Decimal;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, NotSet, QueryFilter, QueryOrder, Set};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, NotSet, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, Set};
 use time::{Date, format_description::well_known::Iso8601};
 use uuid::Uuid;
 
@@ -8,6 +8,7 @@ use crate::{
     auth::AuthUser,
     entities::{categories, recurring_rules},
     error::AppError,
+    pagination::{PageResponse, PaginationQuery},
     recurring::dto::{
         CreateRecurringRuleRequest, PatchValue, RecurringAmount, RecurringRuleResponse,
         TransactionDirection, UpdateRecurringRuleRequest,
@@ -21,19 +22,24 @@ const RULE_NOTES_MAX_LENGTH: usize = 2000;
 pub async fn list(
     state: &AppState,
     auth: &AuthUser,
-) -> Result<Vec<RecurringRuleResponse>, AppError> {
-    let models = recurring_rules::Entity::find()
+    pagination: PaginationQuery,
+) -> Result<PageResponse<RecurringRuleResponse>, AppError> {
+    let query = recurring_rules::Entity::find()
         .filter(recurring_rules::Column::UserId.eq(auth.id))
-        .filter(recurring_rules::Column::IsActive.eq(true))
+        .filter(recurring_rules::Column::IsActive.eq(true));
+    let total = query.clone().count(&state.db).await?;
+    let models = query
         .order_by_asc(recurring_rules::Column::DayOfMonth)
         .order_by_asc(recurring_rules::Column::Name)
+        .offset(pagination.offset())
+        .limit(pagination.per_page)
         .all(&state.db)
         .await?;
-
-    models
+    let items = models
         .into_iter()
         .map(RecurringRuleResponse::try_from)
-        .collect()
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(PageResponse::new(items, pagination, total))
 }
 
 pub async fn create(

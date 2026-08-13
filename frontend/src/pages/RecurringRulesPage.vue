@@ -150,6 +150,13 @@
           @deactivate="openDeactivateDialog"
         />
       </section>
+      <AppPagination
+        v-if="loadStatus === 'ready'"
+        :page="page"
+        :total-pages="totalPages"
+        :total="total"
+        @update:page="changePage"
+      />
     </div>
 
     <RecurringRuleFormDialog
@@ -209,6 +216,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 
 import AppPageHeader from "@/components/AppPageHeader.vue";
+import AppPagination from "@/components/AppPagination.vue";
 import { useAuthStore } from "@/features/auth/authStore";
 import { listCategories } from "@/features/categories/api";
 import type { Category } from "@/features/categories/types";
@@ -237,6 +245,9 @@ const $q = useQuasar();
 const { t } = useI18n();
 
 const rules = ref<RecurringRule[]>([]);
+const page = ref(1);
+const total = ref(0);
+const totalPages = ref(0);
 const categories = ref<Category[]>([]);
 const loadStatus = ref<LoadStatus>("loading");
 const search = ref("");
@@ -328,10 +339,12 @@ async function loadData() {
 
   try {
     const [loadedRules, loadedCategories] = await Promise.all([
-      listRecurringRules(),
+      listRecurringRules(page.value),
       listCategories()
     ]);
-    rules.value = sortRules(loadedRules);
+    rules.value = sortRules(loadedRules.items);
+    total.value = loadedRules.total;
+    totalPages.value = loadedRules.totalPages;
     categories.value = loadedCategories;
     loadStatus.value = "ready";
   } catch (error) {
@@ -339,6 +352,11 @@ async function loadData() {
       loadStatus.value = "error";
     }
   }
+}
+
+function changePage(value: number) {
+  page.value = value;
+  void loadData();
 }
 
 function openCreateDialog() {

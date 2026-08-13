@@ -1,5 +1,5 @@
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set,
+    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, Set,
 };
 use time::{
     OffsetDateTime,
@@ -13,6 +13,7 @@ use crate::{
     auth::{AuthUser, password},
     entities::{auth_sessions, users},
     error::AppError,
+    pagination::{PageResponse, PaginationQuery},
 };
 
 const DISPLAY_NAME_MAX_LENGTH: usize = 120;
@@ -20,15 +21,21 @@ const DISPLAY_NAME_MAX_LENGTH: usize = 120;
 pub async fn list(
     state: &AppState,
     auth: &AuthUser,
-) -> Result<Vec<ManagedUserResponse>, AppError> {
+    pagination: PaginationQuery,
+) -> Result<PageResponse<ManagedUserResponse>, AppError> {
     ensure_admin(state, auth, None).await?;
-    users::Entity::find()
+    let query = users::Entity::find();
+    let total = query.clone().count(&state.db).await?;
+    let items = query
         .order_by_asc(users::Column::Email)
+        .offset(pagination.offset())
+        .limit(pagination.per_page)
         .all(&state.db)
         .await?
         .into_iter()
         .map(response)
-        .collect()
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(PageResponse::new(items, pagination, total))
 }
 
 pub async fn create(

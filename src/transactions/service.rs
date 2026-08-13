@@ -1,7 +1,7 @@
 use rust_decimal::Decimal;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, DbErr, EntityTrait, NotSet, QueryFilter, QueryOrder,
-    Set, SqlErr, sea_query::Expr,
+    ActiveModelTrait, ColumnTrait, Condition, DbErr, EntityTrait, NotSet, PaginatorTrait,
+    QueryFilter, QueryOrder, QuerySelect, Set, SqlErr, sea_query::Expr,
 };
 use time::{Date, OffsetDateTime};
 use uuid::Uuid;
@@ -12,10 +12,11 @@ use crate::{
     entities::{categories, transactions},
     error::AppError,
     materialization::MonthPeriod,
+    pagination::{PageResponse, PaginationQuery},
     transactions::dto::{
         CreateTransactionRequest, CreateTransactionStatus, PayTransactionRequest,
-        TransactionDirection, TransactionResponse, UpdateTransactionRequest, parse_date,
-        parse_datetime,
+        TransactionDirection, TransactionResponse, TransactionSortOrder, UpdateTransactionRequest,
+        parse_date, parse_datetime,
     },
 };
 
@@ -51,22 +52,60 @@ pub async fn list(
     state: &AppState,
     auth: &AuthUser,
     period: Option<(&MonthPeriod, &MonthPeriod)>,
-) -> Result<Vec<TransactionResponse>, AppError> {
+    pagination: PaginationQuery,
+    virtual_items: Vec<TransactionResponse>,
+    overdue: bool,
+    sort_order: TransactionSortOrder,
+) -> Result<PageResponse<TransactionResponse>, AppError> {
     let mut query = transactions::Entity::find().filter(transactions::Column::UserId.eq(auth.id));
 
     if let Some((start, end)) = period {
         query = query.filter(month_filter(auth, start, end));
     }
+    if overdue {
+        query = query
+            .filter(transactions::Column::Status.eq("pending"))
+            .filter(transactions::Column::DueDate.is_not_null())
+            .filter(Expr::cust_with_values(
+                r#""transactions"."due_date" < (CURRENT_TIMESTAMP AT TIME ZONE $1)::date"#,
+                [auth.timezone.clone()],
+            ));
+    }
 
-    let models = query
-        .order_by_desc(transactions::Column::CreatedAt)
-        .all(&state.db)
-        .await?;
+    let persisted_total = query.clone().count(&state.db).await?;
+    let total = persisted_total + virtual_items.len() as u64;
+    let offset = pagination.offset();
+    let mut items = Vec::new();
 
-    models
-        .into_iter()
-        .map(TransactionResponse::try_from)
-        .collect()
+    if offset < persisted_total {
+        let limit = pagination.per_page.min(persisted_total - offset);
+        let query = match sort_order {
+            TransactionSortOrder::Asc => query
+                .order_by_asc(transactions::Column::DueDate)
+                .order_by_asc(transactions::Column::CreatedAt),
+            TransactionSortOrder::Desc => query
+                .order_by_desc(transactions::Column::DueDate)
+                .order_by_desc(transactions::Column::CreatedAt),
+        };
+        let models = query.offset(offset).limit(limit).all(&state.db).await?;
+        items = models
+            .into_iter()
+            .map(TransactionResponse::try_from)
+            .collect::<Result<Vec<_>, _>>()?;
+    }
+
+    let virtual_offset = offset.saturating_sub(persisted_total) as usize;
+    let remaining = pagination.per_page as usize - items.len();
+    if remaining > 0 {
+        items.extend(
+            virtual_items
+                .into_iter()
+                .skip(virtual_offset)
+                .take(remaining),
+        );
+    }
+
+    Ok(PageResponse::new(items, pagination, total))
 }
 
 pub async fn create(
@@ -408,12 +447,8 @@ fn is_unique_violation(error: &DbErr) -> bool {
 
 fn validate_point_transaction_shape(input: &PointTransactionInput) -> Result<(), AppError> {
     let valid = match input.status {
-        CreateTransactionStatus::Pending => {
-            input.due_date.is_some() && input.occurred_at.is_none()
-        }
-        CreateTransactionStatus::Paid => {
-            input.due_date.is_none() && input.occurred_at.is_some()
-        }
+        CreateTransactionStatus::Pending => input.due_date.is_some() && input.occurred_at.is_none(),
+        CreateTransactionStatus::Paid => input.due_date.is_none() && input.occurred_at.is_some(),
     };
 
     if !valid {
@@ -531,7 +566,10 @@ fn normalize_notes(value: Option<String>) -> Result<Option<String>, AppError> {
 }
 
 fn month_filter(auth: &AuthUser, start: &MonthPeriod, end: &MonthPeriod) -> Condition {
-    let end_exclusive = end.next().map(|period| period.first_day()).unwrap_or(end.last_day());
+    let end_exclusive = end
+        .next()
+        .map(|period| period.first_day())
+        .unwrap_or(end.last_day());
     let recurring = Condition::all()
         .add(transactions::Column::RecurringRuleId.is_not_null())
         .add(transactions::Column::RecurrencePeriod.gte(start.first_day()))
@@ -596,7 +634,11 @@ mod tests {
             .build(DbBackend::Postgres);
 
         assert!(!statement.sql.contains('?'), "{}", statement.sql);
-        assert!(statement.sql.contains("AT TIME ZONE $"), "{}", statement.sql);
+        assert!(
+            statement.sql.contains("AT TIME ZONE $"),
+            "{}",
+            statement.sql
+        );
         assert!(statement.sql.contains("due_date"), "{}", statement.sql);
     }
 }

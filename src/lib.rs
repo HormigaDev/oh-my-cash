@@ -10,6 +10,7 @@ pub mod entities;
 pub mod error;
 pub mod health;
 pub mod materialization;
+pub mod pagination;
 pub mod recurring;
 pub mod transactions;
 

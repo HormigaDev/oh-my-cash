@@ -1,5 +1,6 @@
 import { apiRequest } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/errors";
+import { paginationParams, parsePage } from "@/lib/api/pagination";
 
 import type {
   CreateTransactionInput,
@@ -64,7 +65,8 @@ function parseTransaction(value: unknown): Transaction {
     !isNullableString(value.due_date) ||
     !isNullableString(value.recurrence_period) ||
     !isNullableString(value.occurred_at) ||
-    !isNullableString(value.paid_at)
+    !isNullableString(value.paid_at) ||
+    typeof value.virtual_transaction !== "boolean"
   ) {
     throw invalidResponse();
   }
@@ -83,7 +85,8 @@ function parseTransaction(value: unknown): Transaction {
     dueDate: value.due_date,
     recurrencePeriod: value.recurrence_period,
     occurredAt: value.occurred_at,
-    paidAt: value.paid_at
+    paidAt: value.paid_at,
+    virtualTransaction: value.virtual_transaction
   };
 }
 
@@ -102,7 +105,14 @@ function manualBody(input: ManualTransactionInput, includeStatus: boolean) {
     : { ...base, occurred_at: input.occurredAt };
 }
 
-export async function listTransactions(startMonth: string, endMonth: string) {
+export async function listTransactions(
+  startMonth: string,
+  endMonth: string,
+  page = 1,
+  perPage = 25,
+  overdue = false,
+  sortOrder: "asc" | "desc" = "desc"
+) {
   if (
     !isValidMonth(startMonth) ||
     !isValidMonth(endMonth) ||
@@ -112,14 +122,10 @@ export async function listTransactions(startMonth: string, endMonth: string) {
   }
 
   const response = await apiRequest(
-    `/transactions?${new URLSearchParams({ start_month: startMonth, end_month: endMonth }).toString()}`
+    `/transactions?${new URLSearchParams({ start_month: startMonth, end_month: endMonth, overdue: String(overdue), sort_order: sortOrder, ...paginationParams(page, perPage) }).toString()}`
   );
 
-  if (!Array.isArray(response)) {
-    throw invalidResponse();
-  }
-
-  return response.map(parseTransaction);
+  return parsePage(response, parseTransaction);
 }
 
 export async function createTransaction(input: CreateTransactionInput) {

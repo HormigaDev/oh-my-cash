@@ -15,6 +15,7 @@ export default {
     notAvailable: "—",
     retry: "Reintentar"
   },
+  pagination: { label: "Paginación", total: "{total} registros" },
   theme: {
     title: "Apariencia",
     palette: "Tema de color",
@@ -83,9 +84,6 @@ export default {
       realBalance: "Balance real",
       globalBalance: "Balance global",
       globalBalanceCaption: "Acumulado de todos los movimientos pagados",
-      globalProjectedBalance: "Balance global proyectado",
-      globalProjectedBalanceCaption:
-        "Balance acumulado al confirmar todos los movimientos pendientes estimados",
       incomeReceived: "Ingresos recibidos",
       expensesPaid: "Gastos pagados",
       projectedBalance: "Balance proyectado",
@@ -224,7 +222,21 @@ export default {
       movie: "Entretenimiento",
       payments: "Pagos",
       savings: "Ahorro",
-      work: "Trabajo"
+      work: "Trabajo",
+      shopping_cart: "Supermercado",
+      flight: "Viajes",
+      device_hub: "Infraestructura y servidores",
+      storefront: "Ventas",
+      phone_iphone: "Telefonía",
+      wifi: "Internet",
+      account_balance_wallet: "Salario",
+      computer: "Freelance y tecnología",
+      sports_esports: "Juegos y entretenimiento",
+      water_drop: "Agua",
+      lightbulb: "Electricidad",
+      medication: "Medicamentos",
+      redeem: "Bonificaciones y regalos",
+      swap_horiz: "Transferencias"
     },
     empty: {
       title: "Aún no tienes categorías",
@@ -402,7 +414,8 @@ export default {
       cancelled: "Cancelado"
     },
     source: {
-      recurring: "Recurrente"
+      recurring: "Recurrente",
+      virtual: "Proyección virtual"
     },
     amount: {
       actual: "Importe real",
@@ -433,18 +446,22 @@ export default {
     },
     summary: {
       label: "Resumen de movimientos",
-      pending: "Pendientes",
-      paid: "Pagados",
+      pending: "Pendientes en esta página",
+      paid: "Pagados en esta página",
       total: "Total",
-      income: "Ingresos pagados",
-      expenses: "Gastos pagados",
-      balance: "Balance del periodo"
+      income: "Ingresos de esta página",
+      expenses: "Gastos de esta página",
+      balance: "Balance de esta página"
     },
     filters: {
       label: "Buscar y filtrar movimientos",
       search: "Buscar movimiento o categoría",
       all: "Todos",
-      clear: "Limpiar filtros"
+      clear: "Limpiar filtros",
+      overdueOnly: "Sólo vencidos",
+      sortLabel: "Ordenar por fecha objetivo",
+      oldestFirst: "Más antiguos primero",
+      newestFirst: "Más recientes primero"
     },
     form: {
       createEyebrow: "Nuevo movimiento",

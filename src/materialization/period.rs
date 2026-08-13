@@ -77,6 +77,22 @@ impl MonthPeriod {
 
         Self::parse(&format!("{year:04}-{:02}", u8::from(month)))
     }
+
+    pub fn previous(&self) -> Result<Self, AppError> {
+        let (year, month) = if self.month == Month::January {
+            (self.year - 1, Month::December)
+        } else {
+            (
+                self.year,
+                Month::try_from(u8::from(self.month) - 1).map_err(|_| AppError::Internal)?,
+            )
+        };
+        Self::parse(&format!("{year:04}-{:02}", u8::from(month)))
+    }
+
+    pub fn from_date(date: Date) -> Result<Self, AppError> {
+        Self::parse(&format!("{:04}-{:02}", date.year(), u8::from(date.month())))
+    }
 }
 
 fn invalid_month() -> AppError {

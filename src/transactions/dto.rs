@@ -18,6 +18,23 @@ pub struct ListTransactionsQuery {
 
     #[serde(default)]
     pub end_month: Option<String>,
+
+    #[serde(default)]
+    pub overdue: bool,
+
+    #[serde(default)]
+    pub sort_order: TransactionSortOrder,
+
+    #[serde(flatten)]
+    pub pagination: crate::pagination::PaginationQuery,
+}
+
+#[derive(Clone, Copy, Debug, Default, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum TransactionSortOrder {
+    Asc,
+    #[default]
+    Desc,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
@@ -194,6 +211,8 @@ pub struct TransactionResponse {
     pub occurred_at: Option<String>,
 
     pub paid_at: Option<String>,
+
+    pub virtual_transaction: bool,
 }
 
 impl TryFrom<transactions::Model> for TransactionResponse {
@@ -228,6 +247,8 @@ impl TryFrom<transactions::Model> for TransactionResponse {
             occurred_at: format_optional_datetime(model.occurred_at)?,
 
             paid_at: format_optional_datetime(model.paid_at)?,
+
+            virtual_transaction: false,
         })
     }
 }

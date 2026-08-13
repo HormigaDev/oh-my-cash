@@ -9,7 +9,8 @@ use crate::{
     app::AppState,
     auth::AuthUser,
     error::AppError,
-    materialization::{MonthPeriod, materialize_month},
+    materialization::{MonthPeriod, prepare_requested_period, virtual_transactions},
+    pagination::PageResponse,
     transactions::{
         dto::{
             CreateTransactionRequest, ListTransactionsQuery, PayTransactionRequest,
@@ -25,7 +26,7 @@ pub async fn list(
     State(state): State<AppState>,
 
     Query(query): Query<ListTransactionsQuery>,
-) -> Result<Json<Vec<TransactionResponse>>, AppError> {
+) -> Result<Json<PageResponse<TransactionResponse>>, AppError> {
     let (start, end) = match (query.start_month, query.end_month, query.month) {
         (Some(start), Some(end), _) => (MonthPeriod::parse(&start)?, MonthPeriod::parse(&end)?),
         (None, None, Some(month)) => {
@@ -45,16 +46,31 @@ pub async fn list(
         ));
     }
 
-    let mut period = start.clone();
-    loop {
-        materialize_month(&state, &auth, &period).await?;
-        if period == end {
-            break;
-        }
-        period = period.next()?;
+    let pagination = query.pagination.validate()?;
+    let virtual_from = prepare_requested_period(&state, &auth, &start, &end).await?;
+    let mut virtual_items =
+        virtual_transactions(&state, &auth, &start, &end, &virtual_from).await?;
+    if query.overdue {
+        virtual_items.clear();
+    } else {
+        virtual_items.sort_by(|left, right| {
+            let ordering = left.due_date.cmp(&right.due_date);
+            match query.sort_order {
+                crate::transactions::dto::TransactionSortOrder::Asc => ordering,
+                crate::transactions::dto::TransactionSortOrder::Desc => ordering.reverse(),
+            }
+        });
     }
-
-    let transactions = service::list(&state, &auth, Some((&start, &end))).await?;
+    let transactions = service::list(
+        &state,
+        &auth,
+        Some((&start, &end)),
+        pagination,
+        virtual_items,
+        query.overdue,
+        query.sort_order,
+    )
+    .await?;
 
     Ok(Json(transactions))
 }

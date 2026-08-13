@@ -16,8 +16,8 @@ use crate::{
         PendingItem,
     },
     error::AppError,
-    materialization::{MonthPeriod, materialize_month},
-    transactions::dto::TransactionDirection,
+    materialization::{MonthPeriod, prepare_requested_period, virtual_transactions},
+    transactions::dto::{TransactionDirection, TransactionResponse},
 };
 
 #[derive(Debug, FromQueryResult)]
@@ -46,9 +46,6 @@ struct SummaryRow {
 #[derive(Debug, FromQueryResult)]
 struct GlobalBalanceRow {
     global_balance: Decimal,
-    pending_income: Decimal,
-    pending_expenses: Decimal,
-    pending_without_estimate: i64,
 }
 
 #[derive(Debug, FromQueryResult)]
@@ -126,14 +123,8 @@ pub async fn get_dashboard(
     start: &MonthPeriod,
     end: &MonthPeriod,
 ) -> Result<DashboardResponse, AppError> {
-    let mut period = start.clone();
-    loop {
-        materialize_month(state, auth, &period).await?;
-        if period == *end {
-            break;
-        }
-        period = period.next()?;
-    }
+    let virtual_from = prepare_requested_period(state, auth, start, end).await?;
+    let virtual_items = virtual_transactions(state, auth, start, end, &virtual_from).await?;
 
     let transaction = state
         .db
@@ -147,7 +138,8 @@ pub async fn get_dashboard(
 
     let global = load_global_balance(&transaction, auth).await?;
 
-    let summary = build_summary(summary_row, global)?;
+    let mut summary = build_summary(summary_row, global)?;
+    apply_virtual_summary(&mut summary, &virtual_items);
 
     let spending_by_category =
         load_categories(&transaction, auth, start, end, summary.expenses_paid).await?;
@@ -175,6 +167,32 @@ pub async fn get_dashboard(
 
         recent_activity,
     })
+}
+
+fn apply_virtual_summary(summary: &mut DashboardSummary, items: &[TransactionResponse]) {
+    for item in items {
+        match (item.direction, item.expected_amount) {
+            (TransactionDirection::Income, Some(amount)) => summary.pending_income += amount,
+            (TransactionDirection::Expense, Some(amount)) => summary.pending_expenses += amount,
+            (TransactionDirection::Income, None) => {
+                summary.pending_income_without_estimate += 1;
+            }
+            (TransactionDirection::Expense, None) => {
+                summary.pending_expenses_without_estimate += 1;
+            }
+        }
+    }
+    summary.pending_transaction_count += items.len() as u64;
+    summary.projected_income = summary.income_received + summary.pending_income;
+    summary.projected_expenses = summary.expenses_paid + summary.pending_expenses;
+    summary.projected_balance = summary.projected_income - summary.projected_expenses;
+    summary.projection_complete = summary.pending_income_without_estimate == 0
+        && summary.pending_expenses_without_estimate == 0;
+    summary.projected_savings_rate_percent = if summary.projection_complete {
+        savings_rate(summary.projected_balance, summary.projected_income)
+    } else {
+        None
+    };
 }
 
 async fn load_summary(
@@ -345,16 +363,7 @@ async fn load_global_balance(
                     END
                 ) FILTER (WHERE status = 'paid'),
                 0
-            ) AS global_balance,
-            COALESCE(SUM(expected_amount) FILTER (
-                WHERE status = 'pending' AND direction = 'income'
-            ), 0) AS pending_income,
-            COALESCE(SUM(expected_amount) FILTER (
-                WHERE status = 'pending' AND direction = 'expense'
-            ), 0) AS pending_expenses,
-            COUNT(*) FILTER (
-                WHERE status = 'pending' AND expected_amount IS NULL
-            ) AS pending_without_estimate
+            ) AS global_balance
             FROM transactions
             WHERE user_id = {user_id}
         "#
@@ -388,11 +397,6 @@ fn build_summary(row: SummaryRow, global: GlobalBalanceRow) -> Result<DashboardS
 
     Ok(DashboardSummary {
         global_balance: global.global_balance,
-
-        global_projected_balance: global.global_balance + global.pending_income
-            - global.pending_expenses,
-
-        global_projection_complete: global.pending_without_estimate == 0,
 
         income_received: row.income_received,
 

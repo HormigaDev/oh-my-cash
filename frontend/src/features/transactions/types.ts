@@ -17,6 +17,7 @@ export interface Transaction {
   recurrencePeriod: string | null;
   occurredAt: string | null;
   paidAt: string | null;
+  virtualTransaction: boolean;
 }
 
 interface ManualTransactionBase {

@@ -28,6 +28,13 @@
               <q-icon name="event_repeat" aria-hidden="true" />
               {{ t("transactions.source.recurring") }}
             </span>
+            <span
+              v-if="transaction.virtualTransaction"
+              class="transaction-card__source"
+            >
+              <q-icon name="visibility" aria-hidden="true" />
+              {{ t("transactions.source.virtual") }}
+            </span>
           </div>
           <h2>{{ transaction.description }}</h2>
         </div>
@@ -173,17 +180,27 @@ const { formatMoney, formatDate, formatDateOnly } = useFinancialFormat();
 
 const canEdit = computed(
   () =>
+    !props.transaction.virtualTransaction &&
     (props.transaction.status === "paid" ||
       props.transaction.status === "pending") &&
     props.transaction.recurringRuleId === null
 );
-const canPay = computed(() => props.transaction.status === "pending");
+const canPay = computed(
+  () =>
+    !props.transaction.virtualTransaction &&
+    props.transaction.status === "pending"
+);
 const canSkip = computed(
   () =>
     props.transaction.status === "pending" &&
+    !props.transaction.virtualTransaction &&
     props.transaction.recurringRuleId !== null
 );
-const canCancel = computed(() => props.transaction.status === "pending");
+const canCancel = computed(
+  () =>
+    !props.transaction.virtualTransaction &&
+    props.transaction.status === "pending"
+);
 const hasActions = computed(
   () => canEdit.value || canPay.value || canSkip.value || canCancel.value
 );

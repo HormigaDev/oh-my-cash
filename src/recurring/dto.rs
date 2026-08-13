@@ -5,6 +5,12 @@ use uuid::Uuid;
 
 use crate::{entities::recurring_rules, error::AppError};
 
+#[derive(Debug, Deserialize)]
+pub struct ListRecurringRulesQuery {
+    #[serde(flatten)]
+    pub pagination: crate::pagination::PaginationQuery,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum TransactionDirection {

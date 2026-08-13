@@ -15,6 +15,7 @@ export default {
     notAvailable: "—",
     retry: "Tentar novamente"
   },
+  pagination: { label: "Paginação", total: "{total} registros" },
   theme: {
     title: "Aparência",
     palette: "Tema de cores",
@@ -83,9 +84,6 @@ export default {
       realBalance: "Saldo real",
       globalBalance: "Saldo global",
       globalBalanceCaption: "Acumulado de todas as movimentações pagas",
-      globalProjectedBalance: "Saldo global projetado",
-      globalProjectedBalanceCaption:
-        "Saldo acumulado ao confirmar todas as movimentações pendentes estimadas",
       incomeReceived: "Receitas recebidas",
       expensesPaid: "Despesas pagas",
       projectedBalance: "Saldo projetado",
@@ -216,7 +214,21 @@ export default {
       movie: "Entretenimento",
       payments: "Pagamentos",
       savings: "Economia",
-      work: "Trabalho"
+      work: "Trabalho",
+      shopping_cart: "Supermercado",
+      flight: "Viagens",
+      device_hub: "Infraestrutura e servidores",
+      storefront: "Vendas",
+      phone_iphone: "Telefonia",
+      wifi: "Internet",
+      account_balance_wallet: "Salário",
+      computer: "Freelance e tecnologia",
+      sports_esports: "Jogos e entretenimento",
+      water_drop: "Água",
+      lightbulb: "Eletricidade",
+      medication: "Medicamentos",
+      redeem: "Bonificações e presentes",
+      swap_horiz: "Transferências"
     },
     empty: {
       title: "Você ainda não tem categorias",
@@ -385,7 +397,7 @@ export default {
       skipped: "Ignorado",
       cancelled: "Cancelado"
     },
-    source: { recurring: "Recorrente" },
+    source: { recurring: "Recorrente", virtual: "Projeção virtual" },
     amount: {
       actual: "Valor real",
       expected: "Valor esperado",
@@ -415,18 +427,22 @@ export default {
     },
     summary: {
       label: "Resumo das movimentações",
-      pending: "Pendentes",
-      paid: "Pagas",
+      pending: "Pendentes nesta página",
+      paid: "Pagas nesta página",
       total: "Total",
-      income: "Receitas pagas",
-      expenses: "Despesas pagas",
-      balance: "Saldo do período"
+      income: "Receitas nesta página",
+      expenses: "Despesas nesta página",
+      balance: "Saldo desta página"
     },
     filters: {
       label: "Buscar e filtrar movimentações",
       search: "Buscar movimentação ou categoria",
       all: "Todas",
-      clear: "Limpar filtros"
+      clear: "Limpar filtros",
+      overdueOnly: "Somente vencidas",
+      sortLabel: "Ordenar por data prevista",
+      oldestFirst: "Mais antigas primeiro",
+      newestFirst: "Mais recentes primeiro"
     },
     form: {
       createEyebrow: "Nova movimentação",

@@ -1,6 +1,9 @@
 use axum::{
     Json,
+    body::to_bytes,
+    extract::Request,
     http::StatusCode,
+    middleware::Next,
     response::{IntoResponse, Response},
 };
 use sea_orm::DbErr;
@@ -49,6 +52,68 @@ struct ErrorResponse {
 struct ErrorBody {
     code: &'static str,
     message: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SuccessResponse {
+    pub status: &'static str,
+}
+
+impl SuccessResponse {
+    pub const fn ok() -> Self {
+        Self { status: "ok" }
+    }
+}
+
+pub async fn ensure_json_response(request: Request, next: Next) -> Response {
+    let response = next.run(request).await;
+    if !response.status().is_client_error() && !response.status().is_server_error() {
+        return response;
+    }
+    if response
+        .headers()
+        .get(axum::http::header::CONTENT_TYPE)
+        .and_then(|value| value.to_str().ok())
+        .is_some_and(|value| value.starts_with("application/json"))
+    {
+        return response;
+    }
+
+    let status = response.status();
+    let (parts, body) = response.into_parts();
+    let message = to_bytes(body, 64 * 1024)
+        .await
+        .ok()
+        .and_then(|bytes| String::from_utf8(bytes.to_vec()).ok())
+        .filter(|message| !message.trim().is_empty())
+        .unwrap_or_else(|| {
+            status
+                .canonical_reason()
+                .unwrap_or("Request failed")
+                .to_owned()
+        });
+    let code = match status {
+        StatusCode::BAD_REQUEST => "BAD_REQUEST",
+        StatusCode::UNAUTHORIZED => "UNAUTHORIZED",
+        StatusCode::FORBIDDEN => "FORBIDDEN",
+        StatusCode::NOT_FOUND => "NOT_FOUND",
+        StatusCode::METHOD_NOT_ALLOWED => "METHOD_NOT_ALLOWED",
+        StatusCode::CONFLICT => "CONFLICT",
+        StatusCode::UNPROCESSABLE_ENTITY => "UNPROCESSABLE_ENTITY",
+        _ if status.is_server_error() => "INTERNAL_SERVER_ERROR",
+        _ => "REQUEST_FAILED",
+    };
+    let mut json_response = Json(ErrorResponse {
+        error: ErrorBody { code, message },
+    })
+    .into_response();
+    *json_response.status_mut() = status;
+    for (name, value) in &parts.headers {
+        if name != axum::http::header::CONTENT_TYPE && name != axum::http::header::CONTENT_LENGTH {
+            json_response.headers_mut().insert(name, value.clone());
+        }
+    }
+    json_response
 }
 
 impl IntoResponse for AppError {

@@ -15,6 +15,7 @@ export default {
     notAvailable: "—",
     retry: "Try again"
   },
+  pagination: { label: "Pagination", total: "{total} records" },
   theme: {
     title: "Appearance",
     palette: "Color theme",
@@ -83,9 +84,6 @@ export default {
       realBalance: "Actual balance",
       globalBalance: "Global balance",
       globalBalanceCaption: "Accumulated total of all paid transactions",
-      globalProjectedBalance: "Projected global balance",
-      globalProjectedBalanceCaption:
-        "Accumulated balance after confirming every estimated pending transaction",
       incomeReceived: "Income received",
       expensesPaid: "Expenses paid",
       projectedBalance: "Projected balance",
@@ -215,7 +213,21 @@ export default {
       movie: "Entertainment",
       payments: "Payments",
       savings: "Savings",
-      work: "Work"
+      work: "Work",
+      shopping_cart: "Groceries",
+      flight: "Travel",
+      device_hub: "Infrastructure and servers",
+      storefront: "Sales",
+      phone_iphone: "Phone service",
+      wifi: "Internet",
+      account_balance_wallet: "Salary",
+      computer: "Freelance and technology",
+      sports_esports: "Games and entertainment",
+      water_drop: "Water",
+      lightbulb: "Electricity",
+      medication: "Medication",
+      redeem: "Bonuses and gifts",
+      swap_horiz: "Transfers"
     },
     empty: {
       title: "You don't have any categories yet",
@@ -376,12 +388,12 @@ export default {
     },
     direction: { income: "Income", expense: "Expense" },
     status: {
-      pending: "Pending",
-      paid: "Paid",
+      pending: "Pending on this page",
+      paid: "Paid on this page",
       skipped: "Skipped",
       cancelled: "Cancelled"
     },
-    source: { recurring: "Recurring" },
+    source: { recurring: "Recurring", virtual: "Virtual projection" },
     amount: {
       actual: "Actual amount",
       expected: "Expected amount",
@@ -414,15 +426,19 @@ export default {
       pending: "Pending",
       paid: "Paid",
       total: "Total",
-      income: "Paid income",
-      expenses: "Paid expenses",
-      balance: "Period balance"
+      income: "Income on this page",
+      expenses: "Expenses on this page",
+      balance: "Balance on this page"
     },
     filters: {
       label: "Search and filter transactions",
       search: "Search transaction or category",
       all: "All",
-      clear: "Clear filters"
+      clear: "Clear filters",
+      overdueOnly: "Overdue only",
+      sortLabel: "Sort by target date",
+      oldestFirst: "Oldest first",
+      newestFirst: "Newest first"
     },
     form: {
       createEyebrow: "New transaction",

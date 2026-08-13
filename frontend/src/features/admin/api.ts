@@ -1,5 +1,6 @@
 import { apiRequest } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/errors";
+import { paginationParams, parsePage } from "@/lib/api/pagination";
 
 import type { AdminUserInput, ManagedUser } from "./types";
 
@@ -31,16 +32,11 @@ function parseUser(value: unknown): ManagedUser {
   };
 }
 
-export async function fetchManagedUsers() {
-  const response = await apiRequest("/admin/users");
-  if (!Array.isArray(response)) {
-    throw new ApiError(
-      200,
-      "INVALID_RESPONSE",
-      "The server returned an invalid user list"
-    );
-  }
-  return response.map(parseUser);
+export async function fetchManagedUsers(page = 1, perPage = 25) {
+  const response = await apiRequest(
+    `/admin/users?${new URLSearchParams(paginationParams(page, perPage))}`
+  );
+  return parsePage(response, parseUser);
 }
 
 export async function createManagedUser(input: Required<AdminUserInput>) {
